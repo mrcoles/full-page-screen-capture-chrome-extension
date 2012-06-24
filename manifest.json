@@ -1,0 +1,16 @@
+{
+  "name": "Full Page Screen Capture",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "Capture the full page - and don't mess it up",
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [{
+      "js": ["page.js"],
+      "matches": [ "http://*/*", "https://*/*", "ftp://*/*", "file://*/*" ],
+      "run_at": "document_end"
+   }],
+  "permissions": [ "tabs", "http://*/*", "https://*/*", "notifications" ]
+}

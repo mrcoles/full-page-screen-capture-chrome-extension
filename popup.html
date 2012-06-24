@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset=utf-8>
+      <title>Full page screen catpure</title>
+      <!-- there are rendering bugs when styles aren't inline... -->
+      <style>
+body {
+    font: normal 14px/20px helvetica,aria,sans-serif;
+}
+div,p { margin: 0; padding: 0; }
+
+.clr { overlfow: hidden; }
+.left { float: left; }
+.right { float: right; }
+
+a {
+	color: #3681b3;
+	text-decoration: none;
+}
+a:hover { color: #265c80; }
+a:active { color: #000; }
+
+button {
+    display: -moz-inline-box;
+    display: inline-block;
+    position: relative;
+    margin: 6px 0;
+    padding: 0 12px;
+    border: 1px solid #bbb;
+    height: 26px;
+    *height: 28px;
+    width: auto;
+    overflow: visible;
+    font-family: helvetica,arial,sans-serif;
+    font-size: 13px;
+    line-height: 26px;
+    text-align: center;
+    color: #111;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    vertical-align: middle;
+    background: #ddd;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fafafa), color-stop(100%, #dddddd)) repeat-x 0 0;
+    background: linear-gradient(top, #fafafa 0%, #dddddd 100%);
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+#loading {
+    width: 300px;
+    padding-top: 9px;
+    font-size: 12px;
+    color: #888;
+}
+
+#loading .loader {
+    position: relative;
+    border-top: 12px dotted #000;
+    height: 9px;
+}
+
+#loading .bar {
+    position: absolute;
+    top: -21px;
+    left: 0;
+    height: 30px;
+    width: 0%;
+    background: #fff url(loader.gif) scroll no-repeat center right;
+}
+      </style>
+  </head>
+  <body>
+      <div id="main">
+          <button id="capture">capture full web page</button>
+      </div>
+      <div id="loading" style="display:none">
+          <div class="loader"><div class="bar" id="bar"></div></div>
+          <div class="clr">
+              <p class="left">loading…</p>
+              <p class="right">your capture will open in a new window.</p>
+          </div>
+      </div>
+
+      <!-- JavaScript and HTML must be in separate files for security. -->
+      <script src="popup.js"></script>
+  </body>
+</html>

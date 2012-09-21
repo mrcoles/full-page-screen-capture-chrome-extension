@@ -12,9 +12,14 @@ function getPositions(cb) {
         fullHeight = document.height,
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight,
-        cols = Math.ceil(fullWidth / windowWidth),
-        rows = Math.ceil(fullHeight / windowHeight),
         arrangements = [],
+        // pad the vertical scrolling to try to deal with
+        // sticky headers, 250 is an arbitrary size
+        scrollPad = 250,
+        yPos = fullHeight,
+        xPos,
+        yDelta = windowHeight - (windowHeight > scrollPad ? scrollPad : 0),
+        xDelta = windowWidth,
         numArrangements,
         canvas = document.createElement('canvas'),
         ctx;
@@ -22,17 +27,20 @@ function getPositions(cb) {
     canvas.height = fullHeight;
     ctx = canvas.getContext('2d');
 
-    /*
-    console.log('doc', doc, 'body', body);
-    console.log('fullWidth', fullWidth, 'fullHeight', fullHeight);
-    console.log('windowWidth', windowWidth, 'windowHeight', windowHeight);
-    console.log('rows', rows, 'cols', cols);
-    */
-    for (var r=rows-1; r>=0; r--) {
-        for (var c=cols-1; c>=0; c--) {
-            arrangements.push([r,c]);
+    while (yPos > -yDelta) {
+        xPos = 0;
+        while (xPos < fullWidth + xDelta) {
+            arrangements.push([xPos, yPos]);
+            xPos += xDelta;
         }
+        yPos -= yDelta;
     }
+    /*
+    console.log('fullHeight', fullHeight, 'fullWidth', fullWidth);
+    console.log('windowWidth', windowWidth, 'windowHeight', windowHeight);
+    console.log('xDelta', xDelta, 'yDelta', yDelta);
+    console.log('arrangements', arrangements);
+    */
 
     numArrangements = arrangements.length;
 
@@ -45,9 +53,9 @@ function getPositions(cb) {
         }
 
         var next = arrangements.shift(),
-            r = next[0] * windowHeight, c = next[1] * windowWidth;
+            x = next[0], y = next[1];
 
-        window.scrollTo(c, r);
+        window.scrollTo(x, y);
 
         var data = {
             msg: 'capturePage',
@@ -60,9 +68,15 @@ function getPositions(cb) {
             totalHeight: fullHeight
         };
 
+        // need to wait for scrollbar to disappear
         return window.setTimeout(function() {
             chrome.extension.sendRequest(data, function(response) {
-                scrollTo();
+                // when there's an error in popup.js, the
+                // response is `undefined`. this can happen
+                // if you click the page to close the popup
+                if (typeof(response) != 'undefined') {
+                    scrollTo();
+                }
             });
         }, 1000);
     })();

@@ -6,7 +6,7 @@
       <!-- there are rendering bugs when styles aren't inline... -->
       <style>
 body {
-    font: normal 14px/20px helvetica,aria,sans-serif;
+    font: normal 12px/16px helvetica,aria,sans-serif;
 }
 div,p { margin: 0; padding: 0; }
 
@@ -21,34 +21,6 @@ a {
 a:hover { color: #265c80; }
 a:active { color: #000; }
 
-button {
-    display: -moz-inline-box;
-    display: inline-block;
-    position: relative;
-    margin: 6px 0;
-    padding: 0 12px;
-    border: 1px solid #bbb;
-    height: 26px;
-    *height: 28px;
-    width: auto;
-    overflow: visible;
-    font-family: helvetica,arial,sans-serif;
-    font-size: 13px;
-    line-height: 26px;
-    text-align: center;
-    color: #111;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-    vertical-align: middle;
-    background: #ddd;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fafafa), color-stop(100%, #dddddd)) repeat-x 0 0;
-    background: linear-gradient(top, #fafafa 0%, #dddddd 100%);
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
-    -webkit-box-sizing: content-box;
-    box-sizing: content-box;
-}
 
 #loading {
     width: 300px;
@@ -74,14 +46,11 @@ button {
       </style>
   </head>
   <body>
-      <div id="main">
-          <button id="capture">capture full web page</button>
-      </div>
-      <div id="loading" style="display:none">
+      <div id="loading">
           <div class="loader"><div class="bar" id="bar"></div></div>
           <div class="clr">
-              <p class="left">loading…</p>
-              <p class="right">your capture will open in a new window.</p>
+              <br>
+              <p>For best results, don’t mouse over the page during capture. It will open in a new window once finished.</p>
           </div>
       </div>
 

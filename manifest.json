@@ -2,7 +2,7 @@
   "name": "Full Page Screen Capture",
   "version": "1.1",
   "manifest_version": 2,
-  "description": "Capture the full page... reliably",
+  "description": "Screen capture your current page in entirety and reliably!",
   "browser_action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"

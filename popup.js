@@ -78,13 +78,12 @@ function openPage() {
     // create a blob for writing to a file
     var blob = bb.getBlob(mimeString);
     window.webkitRequestFileSystem(TEMPORARY, 1024*1024, function(fs){
-        console.log(fs);
         fs.root.getFile("screenshot.png", {create:true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
                 fileWriter.write(blob);
-            }, function(e) {console.log(e);});
-        }, function(e) {console.log(e);});
-    }, function(e) {console.log(e);});
+            }, function() {});
+        }, function() {});
+    }, function() {});
 
     // open the file that now contains the blob
     window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage("@@extension_id") + '/temporary/screenshot.png');

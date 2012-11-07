@@ -15,11 +15,11 @@ function getPositions(cb) {
         arrangements = [],
         // pad the vertical scrolling to try to deal with
         // sticky headers, 250 is an arbitrary size
-        scrollPad = 250,
-        yPos = fullHeight,
-        xPos,
+        scrollPad = 200,
         yDelta = windowHeight - (windowHeight > scrollPad ? scrollPad : 0),
         xDelta = windowWidth,
+        yPos = fullHeight - yDelta + 1,
+        xPos,
         numArrangements,
         canvas = document.createElement('canvas'),
         ctx;
@@ -28,13 +28,15 @@ function getPositions(cb) {
     ctx = canvas.getContext('2d');
 
     while (yPos > -yDelta) {
+        ix = 0;
         xPos = 0;
-        while (xPos < fullWidth + xDelta) {
+        while (xPos < fullWidth) {
             arrangements.push([xPos, yPos]);
             xPos += xDelta;
         }
         yPos -= yDelta;
     }
+
     /*
     console.log('fullHeight', fullHeight, 'fullWidth', fullWidth);
     console.log('windowWidth', windowWidth, 'windowHeight', windowHeight);

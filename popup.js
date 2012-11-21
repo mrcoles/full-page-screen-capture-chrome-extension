@@ -70,13 +70,8 @@ var screenshot, contentURL = '';
 function sendScrollMessage() {
     chrome.tabs.getSelected(null, function(tab) {
         contentURL = tab.url;
-        if (testURLMatches(tab.url)) {
-            show('loading');
-            screenshot = {};
-            chrome.tabs.sendRequest(tab.id, {msg: 'scrollPage'}, function(response) {});
-        } else {
-            show('invalid');
-        }
+        screenshot = {};
+        chrome.tabs.sendRequest(tab.id, {msg: 'scrollPage'}, function(response) {});
     });
 }
 
@@ -168,5 +163,22 @@ function openPage() {
     window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage("@@extension_id") + '/temporary/' + name);
 }
 
-// start doing stuff immediately!
-sendScrollMessage();
+//
+// start doing stuff immediately! - including error cases
+//
+
+chrome.tabs.getSelected(null, function(tab) {
+    contentURL = tab.url;
+    if (testURLMatches(tab.url)) {
+        chrome.tabs.sendRequest(tab.id, {msg: 'alive?'}, function(response) {
+            if (response == 'yes') {
+                show('loading');
+                sendScrollMessage();
+            } else {
+                show('reload');
+            }
+        });
+    } else {
+        show('invalid');
+    }
+});

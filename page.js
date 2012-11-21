@@ -2,6 +2,8 @@
 chrome.extension.onRequest.addListener(function(request, sender, callback) {
     if (request.msg == 'scrollPage') {
         getPositions(callback);
+    } else if (request.msg == 'alive?') {
+        callback('yes');
     }
 });
 

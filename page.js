@@ -28,7 +28,6 @@ function getPositions(cb) {
     ctx = canvas.getContext('2d');
 
     while (yPos > -yDelta) {
-        ix = 0;
         xPos = 0;
         while (xPos < fullWidth) {
             arrangements.push([xPos, yPos]);
@@ -37,12 +36,12 @@ function getPositions(cb) {
         yPos -= yDelta;
     }
 
-    /*
+    /** /
     console.log('fullHeight', fullHeight, 'fullWidth', fullWidth);
     console.log('windowWidth', windowWidth, 'windowHeight', windowHeight);
     console.log('xDelta', xDelta, 'yDelta', yDelta);
     console.log('arrangements', arrangements);
-    */
+    /**/
 
     numArrangements = arrangements.length;
 

@@ -21,13 +21,15 @@ a {
 a:hover { color: #265c80; }
 a:active { color: #000; }
 
-
-#loading {
+#wrap {
     width: 300px;
     padding-top: 9px;
     font-size: 12px;
     color: #888;
 }
+
+#loading,
+#invalid { display: none; }
 
 #loading .loader {
     position: relative;
@@ -46,11 +48,20 @@ a:active { color: #000; }
       </style>
   </head>
   <body>
-      <div id="loading">
-          <div class="loader"><div class="bar" id="bar"></div></div>
-          <div class="clr">
-              <br>
-              <p>For best results, don’t mouse over the page during capture. It will open in a new window once finished.</p>
+      <div id="wrap">
+          <div id="loading">
+              <div class="loader"><div class="bar" id="bar"></div></div>
+              <div class="clr">
+                  <br>
+                  <p>
+                      For best results, don’t mouse over the page during
+                      capture. It will open in a new window once finished.
+                  </p>
+              </div>
+          </div>
+          <div id="invalid">
+              Full Page Screen Capture cannot be run on this page
+              because of Google Chrome Web Store policies.
           </div>
       </div>
 

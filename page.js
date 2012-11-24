@@ -1,12 +1,14 @@
 
-chrome.extension.onRequest.addListener(function(request, sender, callback) {
+function onMessage(request, sender, callback) {
     if (request.msg == 'scrollPage') {
         getPositions(callback);
-    } else if (request.msg == 'alive?') {
-        callback('yes');
     }
-});
+}
 
+if (!window.hasScreenCapturePage) {
+    window.hasScreenCapturePage = true;
+    chrome.extension.onRequest.addListener(onMessage);
+}
 
 function getPositions(cb) {
     var body = document.body,

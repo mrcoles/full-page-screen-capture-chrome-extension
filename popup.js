@@ -37,14 +37,8 @@ function hide(id) { $(id).style.display = 'none'; }
 //
 // URL Matching test - to verify we can talk to this URL
 //
-var content_scripts = chrome.app.getDetails().content_scripts;
-if (content_scripts.length > 1) {
-    throw new Error('Number of content scripts has changed! Update!');
-}
-var matches = content_scripts[0].matches;
-var noMatches = [
-    /^https?:\/\/chrome.google.com\/.*$/
-    ];
+var matches = ["http://*/*", "https://*/*", "ftp://*/*", "file://*/*"],
+    noMatches = [/^https?:\/\/chrome.google.com\/.*$/];
 function testURLMatches(url) {
     var r, i, success = false;
     for (i=noMatches.length-1; i>=0; i--) {
@@ -61,18 +55,15 @@ function testURLMatches(url) {
     return success;
 }
 
-
 //
 // Events
 //
 var screenshot, contentURL = '';
 
-function sendScrollMessage() {
-    chrome.tabs.getSelected(null, function(tab) {
-        contentURL = tab.url;
-        screenshot = {};
-        chrome.tabs.sendRequest(tab.id, {msg: 'scrollPage'}, function(response) {});
-    });
+function sendScrollMessage(tab) {
+    contentURL = tab.url;
+    screenshot = {};
+    chrome.tabs.sendRequest(tab.id, {msg: 'scrollPage'}, function(response) {});
 }
 
 chrome.extension.onRequest.addListener(function(request, sender, callback) {
@@ -168,16 +159,21 @@ function openPage() {
 //
 
 chrome.tabs.getSelected(null, function(tab) {
-    contentURL = tab.url;
+
     if (testURLMatches(tab.url)) {
-        chrome.tabs.sendRequest(tab.id, {msg: 'alive?'}, function(response) {
-            if (response == 'yes') {
-                show('loading');
-                sendScrollMessage();
-            } else {
-                show('reload');
-            }
+        var loaded = false;
+
+        chrome.tabs.executeScript(tab.id, {file: "page.js"}, function() {
+            loaded = true;
+            show('loading');
+            sendScrollMessage(tab);
         });
+
+        window.setTimeout(function() {
+            if (!loaded) {
+                show('uh-oh');
+            }
+        }, 1000);
     } else {
         show('invalid');
     }

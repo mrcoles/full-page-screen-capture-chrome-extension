@@ -40,6 +40,9 @@ function hide(id) { $(id).style.display = 'none'; }
 var matches = ["http://*/*", "https://*/*", "ftp://*/*", "file://*/*"],
     noMatches = [/^https?:\/\/chrome.google.com\/.*$/];
 function testURLMatches(url) {
+    // couldn't find a better way to tell if executeScript
+    // wouldn't work -- so just testing against known urls
+    // for now...
     var r, i, success = false;
     for (i=noMatches.length-1; i>=0; i--) {
         if (noMatches[i].test(url)) {

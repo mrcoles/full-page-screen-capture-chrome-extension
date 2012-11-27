@@ -7,7 +7,7 @@ A simple Google Chrome extension that takes a screen capture of a full web page.
 
 From the webstore:
 
-Find the [https://chrome.google.com/webstore/detail/full-page-screen-capture/fdpohaocaechififmbbbbbknoalclacl](full page screen capture app) in the Chrome Webstore and click install.
+Find the [Full Page Screen Capture App](https://chrome.google.com/webstore/detail/full-page-screen-capture/fdpohaocaechififmbbbbbknoalclacl) in the Chrome Webstore and click install.
 
 Or, for development:
 

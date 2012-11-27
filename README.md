@@ -12,7 +12,7 @@ Find the [Full Page Screen Capture App](https://chrome.google.com/webstore/detai
 Or, for development:
 
 1. Clone this repo
-2. Open up Chrome and go to the [extensions page](chrome://chrome/extensions/)
+2. Open up Chrome and go to the extensions page (Window → Extensions)
 3. Enable developer mode (if it’s not already)
 4. Click on “Load unpacked extension…”
 5. Select the folder for this app

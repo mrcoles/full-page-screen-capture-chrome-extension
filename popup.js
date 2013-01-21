@@ -124,9 +124,8 @@ function openPage() {
         ia[i] = byteString.charCodeAt(i);
     }
 
-    // write the ArrayBuffer to a blob, and you're done
-    var bb = new window.WebKitBlobBuilder();
-    bb.append(ab);
+    // create a blob for writing to a file
+    var blob = new Blob([ab], {type: mimeString});
 
     // come up with a filename
     var name = contentURL.split('?')[0].split('#')[0];

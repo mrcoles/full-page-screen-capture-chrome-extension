@@ -143,7 +143,6 @@ function openPage() {
     name = 'screencapture' + name + '.png';
 
     // create a blob for writing to a file
-    var blob = bb.getBlob(mimeString);
     window.webkitRequestFileSystem(TEMPORARY, 1024*1024, function(fs){
         fs.root.getFile(name, {create:true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {

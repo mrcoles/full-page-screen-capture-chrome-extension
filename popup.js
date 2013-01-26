@@ -149,7 +149,7 @@ function openPage() {
     }
 
     function errorHandler() {
-        log('There was an error, please try again.');
+        show('uh-oh');
     }
 
     // create a blob for writing to a file

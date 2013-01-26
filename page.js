@@ -40,11 +40,13 @@ function getPositions(cb) {
         yPos -= yDelta;
     }
 
-    /** /
+    /** * /
     console.log('fullHeight', fullHeight, 'fullWidth', fullWidth);
     console.log('windowWidth', windowWidth, 'windowHeight', windowHeight);
     console.log('xDelta', xDelta, 'yDelta', yDelta);
-    console.log('arrangements', arrangements);
+    var arText = [];
+    arrangements.forEach(function(x) { arText.push('['+x.join(',')+']'); });
+    console.log('arrangements', arText.join(', '));
     /**/
 
     numArrangements = arrangements.length;

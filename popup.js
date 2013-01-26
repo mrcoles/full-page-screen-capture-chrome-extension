@@ -4,26 +4,27 @@
 //
 // console object for debugging
 //
-var console = (function() {
-    var par = document.getElementById('wrap'),
-        log = document.createElement('div');
-    par.appendChild(log);
 
-    return {
-        log: function() {
-            var a, p, results = [];
-            for (var i=0, len=arguments.length; i<len; i++) {
-                a = arguments[i];
-                try {
-                    a = JSON.stringify(a, null, 2);
-                } catch(e) {}
-                results.push(a);
-            }
-            p = document.createElement('p');
-            p.innerText = results.join(' ');
-            p.innerHTML = p.innerHTML.replace(/ /g, '&nbsp;');
-            log.appendChild(p);
+var log = (function() {
+    var parElt = document.getElementById('wrap'),
+        logElt = document.createElement('div');
+    logElt.id = 'log';
+    logElt.style.display = 'block';
+    parElt.appendChild(logElt);
+
+    return function() {
+        var a, p, results = [];
+        for (var i=0, len=arguments.length; i<len; i++) {
+            a = arguments[i];
+            try {
+                a = JSON.stringify(a, null, 2);
+            } catch(e) {}
+            results.push(a);
         }
+        p = document.createElement('p');
+        p.innerText = results.join(' ');
+        p.innerHTML = p.innerHTML.replace(/ /g, '&nbsp;');
+        logElt.appendChild(p);
     };
 })();
 
@@ -142,17 +143,24 @@ function openPage() {
     }
     name = 'screencapture' + name + '.png';
 
+    function onwriteend() {
+        // open the file that now contains the blob
+        window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage("@@extension_id") + '/temporary/' + name);
+    }
+
+    function errorHandler() {
+        log('There was an error, please try again.');
+    }
+
     // create a blob for writing to a file
     window.webkitRequestFileSystem(TEMPORARY, 1024*1024, function(fs){
         fs.root.getFile(name, {create:true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
+                fileWriter.onwriteend = onwriteend;
                 fileWriter.write(blob);
-            }, function() {});
-        }, function() {});
-    }, function() {});
-
-    // open the file that now contains the blob
-    window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage("@@extension_id") + '/temporary/' + name);
+            }, errorHandler);
+        }, errorHandler);
+    }, errorHandler);
 }
 
 //

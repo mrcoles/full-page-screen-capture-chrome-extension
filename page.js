@@ -16,6 +16,8 @@ function getPositions(cb) {
         fullHeight = document.height,
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight,
+        originalX = window.scrollX,
+        originalY = window.scrollY,
         arrangements = [],
         // pad the vertical scrolling to try to deal with
         // sticky headers, 250 is an arbitrary size
@@ -53,7 +55,7 @@ function getPositions(cb) {
 
     (function scrollTo() {
         if (!arrangements.length) {
-            window.scrollTo(0, 0);
+            window.scrollTo(originalX, originalY);
             chrome.extension.sendRequest({msg: 'openPage'}, function(response) {
             });
             return cb && cb();

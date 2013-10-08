@@ -16,6 +16,7 @@ function getPositions(cb) {
         fullHeight = document.height,
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight,
+        originalOverflowStyle = document.documentElement.style.overflow,
         arrangements = [],
         // pad the vertical scrolling to try to deal with
         // sticky headers, 250 is an arbitrary size
@@ -30,6 +31,9 @@ function getPositions(cb) {
     canvas.width = fullWidth;
     canvas.height = fullHeight;
     ctx = canvas.getContext('2d');
+    // Disable all scrollbars. We'll restore the scrollbar state when we're done
+    // taking the screenshots.
+    document.documentElement.style.overflow = 'hidden';
 
     while (yPos > -yDelta) {
         xPos = 0;
@@ -53,6 +57,7 @@ function getPositions(cb) {
 
     (function scrollTo() {
         if (!arrangements.length) {
+            document.documentElement.style.overflow = originalOverflowStyle;
             window.scrollTo(0, 0);
             chrome.extension.sendRequest({msg: 'openPage'}, function(response) {
             });
@@ -75,8 +80,9 @@ function getPositions(cb) {
             totalHeight: fullHeight
         };
 
-        // need to wait for scrollbar to disappear
-        return window.setTimeout(function() {
+        // wait for the page to settle after scrolling before asking the
+        // background page to take a snapshot.
+        window.setTimeout(function() {
             chrome.extension.sendRequest(data, function(response) {
                 // when there's an error in popup.js, the
                 // response is `undefined`. this can happen
@@ -85,6 +91,6 @@ function getPositions(cb) {
                     scrollTo();
                 }
             });
-        }, 1000);
+        }, 100);
     })();
 }

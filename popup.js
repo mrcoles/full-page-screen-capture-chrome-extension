@@ -1,4 +1,4 @@
-// Copyright (c) 2012 Peter Coles - http://mrcoles.com/ - All rights reserved.
+// Copyright (c) 2012,2013 Peter Coles - http://mrcoles.com/ - All rights reserved.
 // Use of this source code is governed by the MIT License found in LICENSE
 
 //
@@ -38,25 +38,25 @@ function hide(id) { $(id).style.display = 'none'; }
 //
 // URL Matching test - to verify we can talk to this URL
 //
-var matches = ["http://*/*", "https://*/*", "ftp://*/*", "file://*/*"],
+var matches = ['http://*/*', 'https://*/*', 'ftp://*/*', 'file://*/*'],
     noMatches = [/^https?:\/\/chrome.google.com\/.*$/];
 function testURLMatches(url) {
     // couldn't find a better way to tell if executeScript
     // wouldn't work -- so just testing against known urls
     // for now...
-    var r, i, success = false;
+    var r, i;
     for (i=noMatches.length-1; i>=0; i--) {
         if (noMatches[i].test(url)) {
             return false;
         }
     }
     for (i=matches.length-1; i>=0; i--) {
-        r = new RegExp("^" + matches[i].replace(/\*/g, '.*') + '$');
+        r = new RegExp('^' + matches[i].replace(/\*/g, '.*') + '$');
         if (r.test(url)) {
-            success = true;
+            return true;
         }
     }
-    return success;
+    return false;
 }
 
 //
@@ -82,7 +82,7 @@ chrome.extension.onRequest.addListener(function(request, sender, callback) {
 function capturePage(data, sender, callback) {
     var canvas;
 
-    $('bar').style.width = parseInt(data.complete * 100) + '%';
+    $('bar').style.width = parseInt(data.complete * 100, 10) + '%';
 
     if (!screenshot.canvas) {
         canvas = document.createElement('canvas');
@@ -145,7 +145,7 @@ function openPage() {
 
     function onwriteend() {
         // open the file that now contains the blob
-        window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage("@@extension_id") + '/temporary/' + name);
+        window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + name);
     }
 
     function errorHandler() {
@@ -172,7 +172,7 @@ chrome.tabs.getSelected(null, function(tab) {
     if (testURLMatches(tab.url)) {
         var loaded = false;
 
-        chrome.tabs.executeScript(tab.id, {file: "page.js"}, function() {
+        chrome.tabs.executeScript(tab.id, {file: 'page.js'}, function() {
             loaded = true;
             show('loading');
             sendScrollMessage(tab);

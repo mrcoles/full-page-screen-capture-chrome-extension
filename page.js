@@ -24,12 +24,7 @@ function getPositions(cb) {
         xDelta = windowWidth,
         yPos = fullHeight - yDelta + 1,
         xPos,
-        numArrangements,
-        canvas = document.createElement('canvas'),
-        ctx;
-    canvas.width = fullWidth;
-    canvas.height = fullHeight;
-    ctx = canvas.getContext('2d');
+        numArrangements;
 
     while (yPos > -yDelta) {
         xPos = 0;

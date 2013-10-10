@@ -50,6 +50,10 @@ var pageCaptureAPI = function() {
                 timeout);
         },
 
+        requestArrangement = function(port) {
+            port.postMessage('send arrangement');
+        },
+
         capture = function(data, screenshot, port) {
             if (!screenshot.canvas) {
                 screenshot.canvas = document.createElement('canvas');
@@ -68,7 +72,7 @@ var pageCaptureAPI = function() {
                         image.onload = function() {
                             screenshot.ctx.drawImage(image, data.x, data.y);
                             // Tell the injected page.js code to move on.
-                            port.postMessage('send arrangement');
+                            requestArrangement(port);
                         };
                         image.src = dataURI;
                     }
@@ -156,7 +160,7 @@ var pageCaptureAPI = function() {
                 });
 
                 // Ask for the first arrangement.
-                port.postMessage('send arrangement');
+                requestArrangement(port);
             });
 
             // Inject the page.js code into the tab.

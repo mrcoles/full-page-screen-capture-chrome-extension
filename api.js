@@ -136,32 +136,29 @@ var pageCaptureAPI = function() {
             // Set up to receive and process messages from the content
             // script we'll inject into the tab.
             chrome.runtime.onConnect.addListener(function(port) {
-                // Check the details of the port to make sure we don't react
-                // to anything we should ignore.
-                if (port.name !== 'page capture' || port.sender.id !== chrome.runtime.id || port.sender.url !== tab.url) {
-                    console.error('Unexpected connection received', port);
-                    port.disconnect();
-                    errback('internal error');
-                    return;
+                // Check details of the port to ensure we don't react to
+                // anything we should ignore.  A chrome.runtime.connect
+                // call not meant for us *must* be ignored. Do not close
+                // the port, do not call the errback.
+                if (port.name === 'page capture' && port.sender.id === chrome.runtime.id && port.sender.url === tab.url) {
+                    port.onMessage.addListener(function(request) {
+                        if (request.msg === 'capture') {
+                            progress(request.complete);
+                            capture(request, screenshot, port);
+                        }
+                        else if (request.msg === 'done') {
+                            callback(getBlob(screenshot));
+                        }
+                        else {
+                            console.error('Received unknown request from ' + injectedCaptureFilename + ': ', request);
+                            port.disconnect();
+                            errback('internal error');
+                        }
+                    });
+
+                    // Ask for the first arrangement.
+                    requestArrangement(port);
                 }
-
-                port.onMessage.addListener(function(request) {
-                    if (request.msg === 'capture') {
-                        progress(request.complete);
-                        capture(request, screenshot, port);
-                    }
-                    else if (request.msg === 'done') {
-                        callback(getBlob(screenshot));
-                    }
-                    else {
-                        console.error('Received unknown request from ' + injectedCaptureFilename + ': ', request);
-                        port.disconnect();
-                        errback('internal error');
-                    }
-                });
-
-                // Ask for the first arrangement.
-                requestArrangement(port);
             });
 
             // Inject capture code into the tab.

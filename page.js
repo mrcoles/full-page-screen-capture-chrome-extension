@@ -16,6 +16,8 @@ function getPositions(cb) {
         fullHeight = document.height,
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight,
+        originalX = window.scrollX,
+        originalY = window.scrollY,
         arrangements = [],
         // pad the vertical scrolling to try to deal with
         // sticky headers, 250 is an arbitrary size
@@ -48,7 +50,7 @@ function getPositions(cb) {
 
     (function scrollTo() {
         if (!arrangements.length) {
-            window.scrollTo(0, 0);
+            window.scrollTo(originalX, originalY);
             chrome.extension.sendRequest({msg: 'openPage'}, function(response) {
             });
             return cb && cb();
@@ -71,13 +73,17 @@ function getPositions(cb) {
         };
 
         // need to wait for scrollbar to disappear
-        return window.setTimeout(function() {
-            chrome.extension.sendRequest(data, function(response) {
-                // when there's an error in popup.js, the
-                // response is `undefined`. this can happen
-                // if you click the page to close the popup
-                if (typeof(response) != 'undefined') {
+        window.setTimeout(function() {
+            chrome.extension.sendRequest(data, function(captured) {
+                if (captured) {
+                    // Move on to capture next arrangement.
                     scrollTo();
+                }
+                else {
+                    // If there's an error in popup.js, the response value is undefined.
+                    // This happens if the user clicks the page to close the popup. Return
+                    // the window to its original scroll position.
+                    window.scrollTo(originalX, originalY);
                 }
             });
         }, 1000);

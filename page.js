@@ -53,7 +53,10 @@ function getPositions(cb) {
             window.scrollTo(originalX, originalY);
             chrome.extension.sendRequest({msg: 'openPage'}, function(response) {
             });
-            return cb && cb();
+            if (cb) {
+                cb();
+                return;
+            }
         }
 
         var next = arrangements.shift(),

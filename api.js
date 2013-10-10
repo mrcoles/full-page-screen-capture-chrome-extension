@@ -31,11 +31,10 @@ var pageCaptureAPI = function() {
 
         capture = function(data, screenshot, sendResponse) {
             if (!screenshot.canvas) {
-                canvas = document.createElement('canvas');
-                canvas.width = data.totalWidth;
-                canvas.height = data.totalHeight;
-                screenshot.canvas = canvas;
-                screenshot.ctx = canvas.getContext('2d');
+                screenshot.canvas = document.createElement('canvas');
+                screenshot.canvas.width = data.totalWidth;
+                screenshot.canvas.height = data.totalHeight;
+                screenshot.ctx = screenshot.canvas.getContext('2d');
             }
 
             // Capture the currently visible part of the tab and save it into

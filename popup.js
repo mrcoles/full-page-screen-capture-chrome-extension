@@ -68,7 +68,6 @@ function errorHandler(reason) {
 }
 
 function progress(complete) {
-    console.log('progress:', complete);
     if (complete === 0) {
         // Page capture has just been initiated.
         show('loading');

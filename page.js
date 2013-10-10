@@ -52,9 +52,18 @@
     function cleanUp() {
         document.documentElement.style.overflow = originalOverflowStyle;
         window.scrollTo(originalX, originalY);
-        if (port !== null) {
-            port.disconnect();
-        }
+        // Give any final message a chance to be sent before disconnecting.
+        // If we disconnect too quickly, our 'done' message will throw an
+        // exception.
+        window.setTimeout(
+            function() {
+                if (port !== null) {
+                    port.disconnect();
+                    port = null;
+                }
+            },
+            100
+        );
     }
 
     function sendArrangement() {

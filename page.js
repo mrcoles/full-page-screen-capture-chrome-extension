@@ -18,6 +18,7 @@ function getPositions(cb) {
         windowHeight = window.innerHeight,
         originalX = window.scrollX,
         originalY = window.scrollY,
+        originalOverflowStyle = document.documentElement.style.overflow,
         arrangements = [],
         // pad the vertical scrolling to try to deal with
         // sticky headers, 250 is an arbitrary size
@@ -27,6 +28,10 @@ function getPositions(cb) {
         yPos = fullHeight - yDelta + 1,
         xPos,
         numArrangements;
+
+    // Disable all scrollbars. We'll restore the scrollbar state when we're done
+    // taking the screenshots.
+    document.documentElement.style.overflow = 'hidden';
 
     while (yPos > -yDelta) {
         xPos = 0;
@@ -50,9 +55,9 @@ function getPositions(cb) {
 
     (function processArrangements() {
         if (!arrangements.length) {
+            document.documentElement.style.overflow = originalOverflowStyle;
             window.scrollTo(originalX, originalY);
-            chrome.extension.sendRequest({msg: 'openPage'}, function(response) {
-            });
+            chrome.extension.sendRequest({msg: 'openPage'}, function(response) {});
             if (cb) {
                 cb();
                 return;
@@ -88,6 +93,6 @@ function getPositions(cb) {
                     window.scrollTo(originalX, originalY);
                 }
             });
-        }, 1000);
+        }, 100);
     })();
 }

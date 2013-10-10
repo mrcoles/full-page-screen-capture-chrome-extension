@@ -5,6 +5,7 @@
 // console object for debugging
 //
 
+/*
 var log = (function() {
     var parElt = document.getElementById('wrap'),
         logElt = document.createElement('div');
@@ -27,6 +28,7 @@ var log = (function() {
         logElt.appendChild(p);
     };
 })();
+*/
 
 //
 // utility methods
@@ -57,7 +59,6 @@ function displayCapture(filename) {
 }
 
 function errorHandler(reason) {
-    console.error('error: ', reason);
     hide('loading');
     if (reason === 'invalid url') {
         show('invalid');

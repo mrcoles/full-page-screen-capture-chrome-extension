@@ -21,15 +21,36 @@ var pageCaptureAPI = function() {
             return false;
         },
 
-        initiateCapture = function(tab, callback) {
-            // Send a message to the tab to start the capturing positioning
-            // so we can take snapshots of the page.
-            chrome.tabs.sendRequest(tab.id, {msg: 'scrollPage'}, function() {
-                callback(); // The capture has completed.
+        inject = function(tab, callback) {
+            // Inject page.js into the given tab. Call the callback with a
+            // Boolean to indicate success or failure.
+            var loaded = false,
+                timeout = 1000,
+                timedOut = false;
+
+            // Inject the page.js script into the tab.
+            chrome.tabs.executeScript(tab.id, {file: 'page.js'}, function() {
+                if (!timedOut) {
+                    loaded = true;
+                    callback(true);
+                }
             });
+
+            // Return a false value if the execution of page.js doesn't
+            // complete quickly enough.
+            window.setTimeout(
+                function() {
+                    if (!loaded) {
+                        console.error('Timed out too early while waiting for ' +
+                                      'chrome.tabs.executeScript. Try increasing the timeout.');
+                        timedOut = true;
+                        callback(false);
+                    }
+                },
+                timeout);
         },
 
-        capture = function(data, screenshot, sendResponse) {
+        capture = function(data, screenshot, port) {
             if (!screenshot.canvas) {
                 screenshot.canvas = document.createElement('canvas');
                 screenshot.canvas.width = data.totalWidth;
@@ -46,10 +67,8 @@ var pageCaptureAPI = function() {
                         var image = new Image();
                         image.onload = function() {
                             screenshot.ctx.drawImage(image, data.x, data.y);
-                            // Let the injected page.js code know we've taken
-                            // the screenshot so it can move on to the next
-                            // arrangement.
-                            sendResponse(true);
+                            // Tell the injected page.js code to move on.
+                            port.postMessage('send arrangement');
                         };
                         image.src = dataURI;
                     }
@@ -64,30 +83,28 @@ var pageCaptureAPI = function() {
             // standard dataURI can be too big, let's blob instead
             // http://code.google.com/p/chromium/issues/detail?id=69227#c27
 
-            var dataURI = screenshot.canvas.toDataURL();
+            var dataURI = screenshot.canvas.toDataURL(),
+                // convert base64 to raw binary data held in a string
+                // doesn't handle URLEncoded DataURIs
+                byteString = atob(dataURI.split(',')[1]),
+                // separate out the mime component
+                mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0],
+                // write the bytes of the string to an ArrayBuffer
+                ab = new ArrayBuffer(byteString.length),
+                ia = new Uint8Array(ab),
+                i;
 
-            // convert base64 to raw binary data held in a string
-            // doesn't handle URLEncoded DataURIs
-            var byteString = atob(dataURI.split(',')[1]);
-
-            // separate out the mime component
-            var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-            // write the bytes of the string to an ArrayBuffer
-            var ab = new ArrayBuffer(byteString.length);
-            var ia = new Uint8Array(ab);
-            for (var i = 0; i < byteString.length; i++) {
+            for (i = 0; i < byteString.length; i++) {
                 ia[i] = byteString.charCodeAt(i);
             }
 
-            var blob = new Blob([ab], {type: mimeString});
-            return blob;
+            return new Blob([ab], {type: mimeString});
         },
 
         saveBlob = function(blob, filename, callback, errback) {
             var onWriteEnd = function() {
                 // Return the name of the file that now contains the blob.
-                callback('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + filename);
+                callback('filesystem:chrome-extension://' + chrome.runtime.id + '/temporary/' + filename);
             };
 
             window.webkitRequestFileSystem(TEMPORARY, 1024*1024, function(fs){
@@ -101,10 +118,7 @@ var pageCaptureAPI = function() {
         },
 
         captureToBlob = function(tab, callback, errback, progress) {
-            var loaded = false,
-                screenshot = {},
-                timeout = 1000,
-                timedOut = false;
+            var screenshot = {};
 
             callback = callback || function(){};
             errback = errback || function(){};
@@ -115,44 +129,46 @@ var pageCaptureAPI = function() {
                 return;
             }
 
-            chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-                if (request.msg === 'capture') {
-                    progress(request.complete);
-                    capture(request, screenshot, sendResponse);
-                }
-                else {
-                    console.error('Received unknown request from page.js: ', request);
+            // Set up to receive and process messages from page.js
+            chrome.runtime.onConnect.addListener(function(port) {
+                // Check the details of the port to make sure we don't react
+                // to anything we should ignore.
+                if (port.name !== 'page capture' || port.sender.id !== chrome.runtime.id || port.sender.url !== tab.url) {
+                    console.error('Unexpected connection received', port);
+                    port.disconnect();
                     errback('internal error');
+                    return;
                 }
+
+                port.onMessage.addListener(function(request) {
+                    if (request.msg === 'capture') {
+                        progress(request.complete);
+                        capture(request, screenshot, port);
+                    }
+                    else if (request.msg === 'done') {
+                        callback(getBlob(screenshot));
+                    }
+                    else {
+                        console.error('Received unknown request from page.js: ', request);
+                        port.disconnect();
+                        errback('internal error');
+                    }
+                });
+
+                // Ask for the first arrangement.
+                port.postMessage('send arrangement');
             });
 
-            chrome.tabs.executeScript(tab.id, {file: 'page.js'}, function() {
-                if (timedOut) {
-                    console.error('Timed out too early while waiting for ' +
-                                  'chrome.tabs.executeScript. Try increasing the timeout.');
-                }
-                else {
-                    loaded = true;
+            // Inject the page.js code into the tab.
+            inject(tab, function(injected) {
+                if (injected) {
                     // Let our caller know that the capture is about to begin.
                     progress(0);
-
-                    initiateCapture(tab, function() {
-                        // The full screenshot has been taken.
-                        callback(getBlob(screenshot));
-                    });
+                }
+                else {
+                    errback('execute timeout');
                 }
             });
-
-            // Call the error function if the execution of page.js doesn't
-            // complete quickly enough.
-            window.setTimeout(
-                function() {
-                    if (!loaded) {
-                        timedOut = true;
-                        errback('execute timeout');
-                    }
-                },
-                timeout);
         },
 
         captureToFile = function(tab, filename, callback, errback, progress) {

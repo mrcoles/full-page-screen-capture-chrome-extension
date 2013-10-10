@@ -1,20 +1,5 @@
-
-function onMessage(request, sender, callback) {
-    if (request.msg === 'scrollPage') {
-        getPositions(callback);
-    } else {
-        console.error('Unknown message received from background: ' + request.msg);
-    }
-}
-
-if (!window.hasScreenCapturePage) {
-    window.hasScreenCapturePage = true;
-    chrome.extension.onRequest.addListener(onMessage);
-}
-
-function getPositions(callback) {
-    var body = document.body,
-        fullWidth = document.width,
+(function() {
+    var fullWidth = document.width,
         fullHeight = document.height,
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight,
@@ -23,18 +8,27 @@ function getPositions(callback) {
         originalOverflowStyle = document.documentElement.style.overflow,
         arrangements = [],
         // pad the vertical scrolling to try to deal with
-        // sticky headers, 250 is an arbitrary size
+        // sticky headers, 200 is an arbitrary size
         scrollPad = 200,
         yDelta = windowHeight - (windowHeight > scrollPad ? scrollPad : 0),
         xDelta = windowWidth,
         yPos = fullHeight - yDelta + 1,
         xPos,
-        numArrangements;
+        numArrangements,
+        cleanUpTimeout,
+        port = chrome.runtime.connect({name: 'page capture'}),
+        message = {
+            msg: 'capture',
+            totalWidth: fullWidth,
+            totalHeight: fullHeight
+        };
 
     // Disable all scrollbars. We'll restore the scrollbar state when we're done
     // taking the screenshots.
     document.documentElement.style.overflow = 'hidden';
 
+    // Compute all arrangements (scroll locations) that we'll move to so
+    // the extension can screenshot the entire page.
     while (yPos > -yDelta) {
         xPos = 0;
         while (xPos < fullWidth) {
@@ -58,15 +52,24 @@ function getPositions(callback) {
     function cleanUp() {
         document.documentElement.style.overflow = originalOverflowStyle;
         window.scrollTo(originalX, originalY);
+        if (port !== null) {
+            port.disconnect();
+        }
     }
 
-    (function processArrangements() {
-        if (!arrangements.length) {
+    function sendArrangement() {
+        // Send the next arrangement to the extension.
+        window.clearTimeout(cleanUpTimeout);
+
+        if (port === null) {
+            // Extension closed the port.
             cleanUp();
-            window.scrollTo(0, 0);
-            if (callback) {
-                callback();
-            }
+            return;
+        }
+
+        if (!arrangements.length) {
+            port.postMessage({msg: 'done'});
+            cleanUp();
             return;
         }
 
@@ -74,33 +77,35 @@ function getPositions(callback) {
             x = next[0], y = next[1];
 
         window.scrollTo(x, y);
+        message.x = window.scrollX;
+        message.y = window.scrollY;
+        message.complete = (numArrangements-arrangements.length)/numArrangements;
 
-        var data = {
-            msg: 'capture',
-            x: window.scrollX,
-            y: window.scrollY,
-            complete: (numArrangements-arrangements.length)/numArrangements,
-            totalWidth: fullWidth,
-            totalHeight: fullHeight
-        };
+        // Need to wait for things to settle after we scroll.
+        window.setTimeout(
+            function() {
+                // In case we never hear back from the extension, cleanup.
+                cleanUpTimeout = window.setTimeout(cleanUp, 750);
+                port.postMessage(message);
+            },
+            100
+        );
+    }
 
-        // Need to wait for things to settle
-        window.setTimeout(function() {
-            // In case the below callback never returns, cleanup
-            var cleanUpTimeout = window.setTimeout(cleanUp, 750);
+    port.onDisconnect.addListener(function() {
+        // The extension closed the port. This could be due to the user
+        // navigating away, closing the tab, etc.
+        port = null;
+    });
 
-            chrome.extension.sendRequest(data, function(captured) {
-                window.clearTimeout(cleanUpTimeout);
-                if (captured) {
-                    // Move on to capture next arrangement.
-                    processArrangements();
-                } else {
-                    // If there's an error in popup.js, the response value can be
-                    // undefined, so cleanup
-                    cleanUp();
-                }
-            });
+    port.onMessage.addListener(function(message) {
+        console.log('received message', message);
+        if (message === 'send arrangement') {
+            sendArrangement();
+        }
+        else {
+            console.error('Unknown message received from background: ' + message);
+        }
+    });
 
-        }, 100);
-    })();
-}
+})();

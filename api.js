@@ -1,6 +1,7 @@
 var pageCaptureAPI = function() {
 
-    var matches = [/^https?:\/\/.*\//, /^ftp:\/\/.*\//, /^file:\/\/.*\//],
+    var injectedCaptureFilename = 'page.js',
+        matches = [/^https?:\/\/.*\//, /^ftp:\/\/.*\//, /^file:\/\/.*\//],
         noMatches = [/^https?:\/\/chrome.google.com\//],
 
         validURL = function (url) {
@@ -22,22 +23,21 @@ var pageCaptureAPI = function() {
         },
 
         inject = function(tab, callback) {
-            // Inject page.js into the given tab. Call the callback with a
-            // Boolean to indicate success or failure.
+            // Inject the capture script into the given tab. Call the
+            // callback with a Boolean to indicate success or failure.
             var loaded = false,
                 timeout = 1000,
                 timedOut = false;
 
-            // Inject the page.js script into the tab.
-            chrome.tabs.executeScript(tab.id, {file: 'page.js'}, function() {
+            // Inject the capture content script into the tab.
+            chrome.tabs.executeScript(tab.id, {file: injectedCaptureFilename}, function() {
                 if (!timedOut) {
                     loaded = true;
                     callback(true);
                 }
             });
 
-            // Return a false value if the execution of page.js doesn't
-            // complete quickly enough.
+            // Return a false value if the injection doesn't complete quickly enough.
             window.setTimeout(
                 function() {
                     if (!loaded) {
@@ -71,7 +71,7 @@ var pageCaptureAPI = function() {
                         var image = new Image();
                         image.onload = function() {
                             screenshot.ctx.drawImage(image, data.x, data.y);
-                            // Tell the injected page.js code to move on.
+                            // Ask the injected code to send us another arrangement.
                             requestArrangement(port);
                         };
                         image.src = dataURI;
@@ -133,7 +133,8 @@ var pageCaptureAPI = function() {
                 return;
             }
 
-            // Set up to receive and process messages from page.js
+            // Set up to receive and process messages from the content
+            // script we'll inject into the tab.
             chrome.runtime.onConnect.addListener(function(port) {
                 // Check the details of the port to make sure we don't react
                 // to anything we should ignore.
@@ -153,7 +154,7 @@ var pageCaptureAPI = function() {
                         callback(getBlob(screenshot));
                     }
                     else {
-                        console.error('Received unknown request from page.js: ', request);
+                        console.error('Received unknown request from ' + injectedCaptureFilename + ': ', request);
                         port.disconnect();
                         errback('internal error');
                     }
@@ -163,7 +164,7 @@ var pageCaptureAPI = function() {
                 requestArrangement(port);
             });
 
-            // Inject the page.js code into the tab.
+            // Inject capture code into the tab.
             inject(tab, function(injected) {
                 if (injected) {
                     // Let our caller know that the capture is about to begin.

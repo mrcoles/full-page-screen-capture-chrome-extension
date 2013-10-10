@@ -26,11 +26,12 @@ Or, for development:
 
 It's simple to extract the capture code to use in your own extension.
 
-* Copy `api.js` and `page.js` into your extension.
+* Copy `api.js` and `page.js` into your extension. If you change the name
+  of `page.js` you _must_ put the new file name into the
+  `injectedCaptureFilename` variable at the top of `api.js`.
 * Load `api.js` into your extension HTML (see `popup.html` for an example).
-* Call `pageCaptureAPI()`, which will give you back a Javascript object
-  with two functions on it: `captureToBlob` and `captureToFile`, described
-  below.
+* Call `pageCaptureAPI()`. This returns a Javascript object with two
+  functions on it: `captureToBlob` and `captureToFile`, described below.
 
 #### captureToBlob
 

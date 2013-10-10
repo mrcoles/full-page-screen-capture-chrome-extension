@@ -99,7 +99,6 @@
     });
 
     port.onMessage.addListener(function(message) {
-        console.log('received message', message);
         if (message === 'send arrangement') {
             sendArrangement();
         }

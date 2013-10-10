@@ -17,19 +17,19 @@ Or, for development:
 4. Click on “Load unpacked extension…”
 5. Select the folder for this app
 
-### Extra notes:
+### Extra notes
 
 *   For best results, select `View -> Actual Size` in Chrome.
 *   Please report any bugs that you find.
 
-### Adding screen captures to your extension
+### Adding screen capture ability to your own extension
 
 It's simple to extract the capture code to use in your own extension.
 
-* You'll need `api.js` and `page.js`
+* Copy `api.js` and `page.js` into your extension.
 * Load `api.js` into your extension HTML (see `popup.html` for an example).
 * Call `pageCaptureAPI()`, which will give you back a Javascript object
-  with 2 functions on it: `captureToBlob` and `captureToFile`, described
+  with two functions on it: `captureToBlob` and `captureToFile`, described
   below.
 
 #### captureToBlob
@@ -80,9 +80,13 @@ captureToBlob(tab, filename, callback, errback, progress);
   [File API documentation](https://developer.mozilla.org/en-US/docs/Web/API/File)
   for more information).
 
-* `callback` (optional): pass a function that will be called with the full
-  pathname of the created file. This will look something like
+* `callback(filename)` (optional): pass a function that will be called with
+  the full pathname of the created file. This will be something like
   `filesystem:chrome-extension:///temporary/fdpohaocaechififmbbbbbknoalclacl/name`
-  where the `name` part is the `filename` you passed to `captureToFile`. The
-  returned filename is suitable for opening with `window.open` (see
-  `popup.js` for an example).
+  where the final `name` component is the `filename` you passed to
+  `captureToFile`. The returned filename is suitable for opening with
+  `window.open` (see `popup.js` for an example).
+
+* `errback(reason)` (optional): as for `captureToBlob`.
+
+* `progress(amount)` (optional): as for `captureToBlob`.

@@ -48,7 +48,7 @@ function getPositions(cb) {
 
     numArrangements = arrangements.length;
 
-    (function scrollTo() {
+    (function processArrangements() {
         if (!arrangements.length) {
             window.scrollTo(originalX, originalY);
             chrome.extension.sendRequest({msg: 'openPage'}, function(response) {
@@ -80,9 +80,8 @@ function getPositions(cb) {
             chrome.extension.sendRequest(data, function(captured) {
                 if (captured) {
                     // Move on to capture next arrangement.
-                    scrollTo();
-                }
-                else {
+                    processArrangements();
+                } else {
                     // If there's an error in popup.js, the response value is undefined.
                     // This happens if the user clicks the page to close the popup. Return
                     // the window to its original scroll position.

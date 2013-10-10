@@ -76,7 +76,7 @@ function getPositions(callback) {
         window.scrollTo(x, y);
 
         var data = {
-            msg: 'capturePage',
+            msg: 'capture',
             x: window.scrollX,
             y: window.scrollY,
             complete: (numArrangements-arrangements.length)/numArrangements,

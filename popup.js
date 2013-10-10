@@ -67,14 +67,19 @@ var screenshot, contentURL = '';
 function sendScrollMessage(tab) {
     contentURL = tab.url;
     screenshot = {};
-    chrome.tabs.sendRequest(tab.id, {msg: 'scrollPage'}, function(response) {});
+    chrome.tabs.sendRequest(tab.id, {msg: 'scrollPage'}, function() {
+        // We're done taking snapshots of all parts of the window. Display
+        // the resulting full screenshot image in a new browser tab.
+        displayPage();
+    });
 }
 
 chrome.extension.onRequest.addListener(function(request, sender, callback) {
-    var fn = {'capturePage': capturePage,
-              'openPage': openPage}[request.msg];
-    if (fn) {
-        fn(request, sender, callback);
+    if (request.msg === 'capturePage') {
+        capturePage(request, sender, callback);
+    }
+    else {
+        console.error('Unknown message received from content script: ' + request.msg);
     }
 });
 
@@ -105,7 +110,7 @@ function capturePage(data, sender, callback) {
         });
 }
 
-function openPage() {
+function displayPage() {
     // standard dataURI can be too big, let's blob instead
     // http://code.google.com/p/chromium/issues/detail?id=69227#c27
 

@@ -71,7 +71,8 @@
         window.clearTimeout(cleanUpTimeout);
 
         if (port === null) {
-            // Extension closed the port.
+            // Extension closed the port or we timed out on waiting for the
+            // extension to ask for the next arrangement.
             cleanUp();
             return;
         }
@@ -94,8 +95,10 @@
         window.setTimeout(
             function() {
                 // In case we never hear back from the extension, cleanup.
-                cleanUpTimeout = window.setTimeout(cleanUp, 750);
-                port.postMessage(message);
+                cleanUpTimeout = window.setTimeout(cleanUp, 2000);
+                if (port !== null) {
+                    port.postMessage(message);
+                }
             },
             100
         );

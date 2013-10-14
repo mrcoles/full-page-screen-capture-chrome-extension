@@ -95,7 +95,7 @@
         window.setTimeout(
             function() {
                 // In case we never hear back from the extension, cleanup.
-                cleanUpTimeout = window.setTimeout(cleanUp, 2000);
+                cleanUpTimeout = window.setTimeout(cleanUp, 3000);
                 if (port !== null) {
                     port.postMessage(message);
                 }

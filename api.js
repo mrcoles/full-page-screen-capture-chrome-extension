@@ -26,7 +26,7 @@ var pageCaptureAPI = function() {
             // Inject the capture script into the given tab. Call the
             // callback with a Boolean to indicate success or failure.
             var loaded = false,
-                timeout = 2000,
+                timeout = 3000,
                 timedOut = false;
 
             // Inject the capture content script into the tab.

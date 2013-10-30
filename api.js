@@ -95,6 +95,12 @@ var pageCaptureAPI = function() {
                 canvas.height = data.totalHeight;
                 currentCapture.screenshot.ctx = canvas.getContext('2d');
                 currentCapture.screenshot.canvas = canvas;
+                // Scale to account for device pixel ratios greater than one.
+                // On a MacBook Pro with Retina display, window.devicePixelRatio = 2
+                if (window.devicePixelRatio !== 1){
+                    currentCapture.screenshot.ctx.scale(1 / window.devicePixelRatio,
+                                                        1 / window.devicePixelRatio);
+                }
             }
 
             // Capture the currently visible part of the tab and save it into

@@ -30,8 +30,12 @@ It's simple to extract the capture code to use in your own extension.
   of `page.js` you _must_ put the new file name into the
   `injectedCaptureFilename` variable at the top of `api.js`.
 * Load `api.js` into your extension HTML (see `popup.html` for an example).
-* Call `pageCaptureAPI()`. This returns a Javascript object with two
-  functions on it: `captureToBlob` and `captureToFile`, described below.
+* Call `pageCaptureAPI()`. This returns a Javascript object with 3
+  functions on it: `captureToBlob`, `captureToCanvas` and `captureToFile`,
+  described below. _Note_: only call `pageCaptureAPI()` once. Keep its
+  result to then make as many captures as you need. This is because
+  `pageCaptureAPI()` sets Chrome up to process messages from the injected
+  capture script, and we only want to do that once.
 
 #### captureToBlob
 
@@ -68,13 +72,35 @@ captureToBlob(tab, callback, errback, progress);
   required UI initialization (see `popup.js` for an example). Thereafter,
   `progress` will be called with values that increase to `1.0`.
 
+#### captureToCanvas
+
+The call signature of `captureToCanvas` is
+
+```javascript
+captureToCanvas(tab, callback, errback, progress);
+```
+
+* `tab` see `captureToBlob` above.
+
+* `callback(canvas)` (optional): pass a function that will be called with a
+  [Canvas](https://developer.mozilla.org/en/docs/HTML/Canvas) instance
+  containing the full image of the screen capture.  If you want to obtain a
+  [Data URI](https://en.wikipedia.org/wiki/Data_URI_scheme) from the
+  canvas, call `canvas.toDataURL()`.
+
+* `errback(reason)` (optional): see `captureToBlob` above.
+
+* `progress(amount)` (optional): see `captureToBlob` above.
+
 #### captureToFile
 
 The call signature of `captureToFile` is
 
 ```javascript
-captureToBlob(tab, filename, callback, errback, progress);
+captureToFile(tab, filename, callback, errback, progress);
 ```
+
+* `tab` see `captureToBlob` above.
 
 * `filename` is the base name of a temporary file to create in the
   browser's file system (see the
@@ -88,6 +114,6 @@ captureToBlob(tab, filename, callback, errback, progress);
   `captureToFile`. The returned filename is suitable for opening with
   `window.open` (see `popup.js` for an example).
 
-* `errback(reason)` (optional): as for `captureToBlob`.
+* `errback(reason)` (optional): see `captureToBlob` above.
 
-* `progress(amount)` (optional): as for `captureToBlob`.
+* `progress(amount)` (optional): see `captureToBlob` above.

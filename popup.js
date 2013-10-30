@@ -66,6 +66,7 @@ function errorHandler(reason) {
     else {
         show('uh-oh');
     }
+    console.error('Capture failed:', reason);
 }
 
 function progress(complete) {

@@ -94,6 +94,11 @@ function capturePage(data, sender, callback) {
         canvas.height = data.totalHeight;
         screenshot.canvas = canvas;
         screenshot.ctx = canvas.getContext('2d');
+        // Scale to account for device pixel ratios greater than one. (On a
+        // MacBook Pro with Retina display, window.devicePixelRatio = 2.)
+        if (window.devicePixelRatio !== 1){
+            screenshot.ctx.scale(1 / window.devicePixelRatio, 1 / window.devicePixelRatio);
+        }
     }
 
     chrome.tabs.captureVisibleTab(

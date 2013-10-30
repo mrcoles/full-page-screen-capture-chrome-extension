@@ -17,7 +17,103 @@ Or, for development:
 4. Click on “Load unpacked extension…”
 5. Select the folder for this app
 
-### Extra notes:
+### Extra notes
 
-*   Don’t move your mouse around during the screen capture, it will cause the scroll bar to appear!
+*   For best results, select `View -> Actual Size` in Chrome.
 *   Please report any bugs that you find.
+
+### Adding screen capture ability to your own extension
+
+It's simple to extract the capture code to use in your own extension.
+
+* Copy `api.js` and `page.js` into your extension. If you change the name
+  of `page.js` you _must_ put the new file name into the
+  `injectedCaptureFilename` variable at the top of `api.js`.
+* Load `api.js` into your extension HTML (see `popup.html` for an example).
+* Call `pageCaptureAPI()`. This returns a Javascript object with 3
+  functions on it: `captureToBlob`, `captureToCanvas` and `captureToFile`,
+  described below. _Note_: only call `pageCaptureAPI()` once. Keep its
+  result to then make as many captures as you need. This is because
+  `pageCaptureAPI()` sets Chrome up to process messages from the injected
+  capture script, and we only want to do that once.
+
+#### captureToBlob
+
+The call signature of `captureToBlob` is
+
+```javascript
+captureToBlob(tab, callback, errback, progress);
+```
+
+* `tab` is a Chrome
+  [Tab](http://developer.chrome.com/extensions/tabs.html#type-Tab)
+  object. You'll typically get this from a call to a function like
+  [chrome.tabs.getCurrent](http://developer.chrome.com/extensions/tabs.html#method-getCurrent).
+
+* `callback(blob)` (optional): pass a function that will be called with a
+  [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob) instance
+  containing the PNG data of the screen capture.
+
+* `errback(reason)` (optional): pass a function that will be called if an
+  error occurs. The `reason` argument can be a string or a
+  [FileError](https://developer.mozilla.org/en-US/docs/Web/API/FileError)
+  instance. The possible string values are
+
+    * `execute timeout`: the call to inject the `page.js` file into the tab
+      timed out.
+    * `internal error`: the screen capture logic did something unexpected
+      (please report this!).
+    * `invalid url`: the URL of the tab is not legal for screen capture
+      (due to Chrome restrictions).
+
+* `progress(amount)` (optional): pass a function that will be called to
+  indicate progress of the screen capture. The function will be called with
+  `0` when screen capture is initiated, which will allow you to do any
+  required UI initialization (see `popup.js` for an example). Thereafter,
+  `progress` will be called with values that increase to `1.0`.
+
+#### captureToCanvas
+
+The call signature of `captureToCanvas` is
+
+```javascript
+captureToCanvas(tab, callback, errback, progress);
+```
+
+* `tab` see `captureToBlob` above.
+
+* `callback(canvas)` (optional): pass a function that will be called with a
+  [Canvas](https://developer.mozilla.org/en/docs/HTML/Canvas) instance
+  containing the full image of the screen capture.  If you want to obtain a
+  [Data URI](https://en.wikipedia.org/wiki/Data_URI_scheme) from the
+  canvas, call `canvas.toDataURL()`.
+
+* `errback(reason)` (optional): see `captureToBlob` above.
+
+* `progress(amount)` (optional): see `captureToBlob` above.
+
+#### captureToFile
+
+The call signature of `captureToFile` is
+
+```javascript
+captureToFile(tab, filename, callback, errback, progress);
+```
+
+* `tab` see `captureToBlob` above.
+
+* `filename` is the base name of a temporary file to create in the
+  browser's file system (see the
+  [File API documentation](https://developer.mozilla.org/en-US/docs/Web/API/File)
+  for more information).
+
+* `callback(filename)` (optional): pass a function that will be called with
+  the full pathname of the created file. This will be something like
+  `filesystem:chrome-extension:///temporary/fdpohaocaechififmbbbbbknoalclacl/name`
+  where the final `name` component is the `filename` you passed to
+  `captureToFile`. The returned filename is suitable for opening with
+  `window.open` (see `popup.js` for an example).
+
+* `errback(reason)` (optional): see `captureToBlob` above.
+
+* `progress(amount)` (optional): see `captureToBlob` above.

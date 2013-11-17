@@ -12,10 +12,28 @@ if (!window.hasScreenCapturePage) {
     chrome.extension.onRequest.addListener(onMessage);
 }
 
+function max(nums) {
+    return Math.max.apply(Math, nums.filter(function(x) { return x; }));
+}
+
 function getPositions(callback) {
     var body = document.body,
-        fullWidth = document.width,
-        fullHeight = document.height,
+        widths = [
+            document.documentElement.clientWidth,
+            document.body.scrollWidth,
+            document.documentElement.scrollWidth,
+            document.body.offsetWidth,
+            document.documentElement.offsetWidth
+        ],
+        heights = [
+            document.documentElement.clientHeight,
+            document.body.scrollHeight,
+            document.documentElement.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.offsetHeight
+        ],
+        fullWidth = max(widths),
+        fullHeight = max(heights),
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight,
         originalX = window.scrollX,

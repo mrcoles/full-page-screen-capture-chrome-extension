@@ -45,9 +45,14 @@ function getPositions(callback) {
         scrollPad = 200,
         yDelta = windowHeight - (windowHeight > scrollPad ? scrollPad : 0),
         xDelta = windowWidth,
-        yPos = fullHeight - yDelta + 1,
+        yPos = fullHeight - windowHeight,
         xPos,
         numArrangements;
+
+    // During zooming, there can be weird off-by-1 types of things...
+    if (fullWidth <= xDelta + 1) {
+        fullWidth = xDelta;
+    }
 
     // Disable all scrollbars. We'll restore the scrollbar state when we're done
     // taking the screenshots.
@@ -99,7 +104,8 @@ function getPositions(callback) {
             y: window.scrollY,
             complete: (numArrangements-arrangements.length)/numArrangements,
             totalWidth: fullWidth,
-            totalHeight: fullHeight
+            totalHeight: fullHeight,
+            devicePixelRatio: window.devicePixelRatio
         };
 
         // Need to wait for things to settle
@@ -119,6 +125,6 @@ function getPositions(callback) {
                 }
             });
 
-        }, 100);
+        }, 150);
     })();
 }

@@ -88,17 +88,32 @@ function capturePage(data, sender, callback) {
 
     $('bar').style.width = parseInt(data.complete * 100, 10) + '%';
 
+    // Get window.devicePixelRatio from the page, not the popup
+    var scale = data.devicePixelRatio && data.devicePixelRatio !== 1 ?
+        1 / data.devicePixelRatio : 1;
+
     if (!screenshot.canvas) {
         canvas = document.createElement('canvas');
         canvas.width = data.totalWidth;
         canvas.height = data.totalHeight;
         screenshot.canvas = canvas;
         screenshot.ctx = canvas.getContext('2d');
+
         // Scale to account for device pixel ratios greater than one. (On a
         // MacBook Pro with Retina display, window.devicePixelRatio = 2.)
-        if (window.devicePixelRatio !== 1){
-            screenshot.ctx.scale(1 / window.devicePixelRatio, 1 / window.devicePixelRatio);
+        if (scale !== 1) {
+            // TODO - create option to not scale? It's not clear if it's
+            // better to scale down the image or to just draw it twice
+            // as large.
+            screenshot.ctx.scale(scale, scale);
         }
+    }
+
+    // if the canvas is scaled, then x- and y-positions have to make
+    // up for it in the opposite direction
+    if (scale !== 1) {
+        data.x = data.x / scale;
+        data.y = data.y / scale;
     }
 
     chrome.tabs.captureVisibleTab(

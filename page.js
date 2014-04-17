@@ -111,7 +111,7 @@ function getPositions(callback) {
         // Need to wait for things to settle
         window.setTimeout(function() {
             // In case the below callback never returns, cleanup
-            var cleanUpTimeout = window.setTimeout(cleanUp, 750);
+            var cleanUpTimeout = window.setTimeout(cleanUp, 1250);
 
             chrome.extension.sendRequest(data, function(captured) {
                 window.clearTimeout(cleanUpTimeout);

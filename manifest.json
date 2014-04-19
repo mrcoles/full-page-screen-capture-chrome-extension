@@ -1,13 +1,19 @@
 {
   "name": "Full Page Screen Capture",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "manifest_version": 2,
   "description": "Screen capture your current page in entirety and reliably!",
   "browser_action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"
   },
-  "permissions": [ "tabs", "<all_urls>", "notifications" ],
+  "permissions": [
+      "tabs",
+      "http://*/*",
+      "https://*/*",
+      "<all_urls>",
+      "notifications"
+  ],
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",

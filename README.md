@@ -17,7 +17,9 @@ Or, for development:
 4. Click on “Load unpacked extension…”
 5. Select the folder for this app
 
+
 ### Extra notes:
 
-*   Don’t move your mouse around during the screen capture, it will cause the scroll bar to appear!
-*   Please report any bugs that you find.
+*   Please report any bugs that you find as issues on the project
+*   More details on [this blog post](http://mrcoles.com/full-page-screen-capture-chrome-extension/)
+*   Thank you to [terrycojones](https://github.com/terrycojones) & [gleitz](https://github.com/gleitz) for contributions!

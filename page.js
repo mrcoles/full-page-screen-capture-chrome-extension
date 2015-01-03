@@ -1,4 +1,6 @@
 
+var CAPTURE_DELAY = 150;
+
 function onMessage(request, sender, callback) {
     if (request.msg === 'scrollPage') {
         getPositions(callback);
@@ -124,6 +126,6 @@ function getPositions(callback) {
                 }
             });
 
-        }, 150);
+        }, CAPTURE_DELAY);
     })();
 }

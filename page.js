@@ -4,6 +4,8 @@ var CAPTURE_DELAY = 150;
 function onMessage(request, sender, callback) {
     if (request.msg === 'scrollPage') {
         getPositions(callback);
+    } else if (request.msg == 'logMessage') {
+        console.log('[POPUP LOG]', request.data);
     } else {
         console.error('Unknown message received from background: ' + request.msg);
     }

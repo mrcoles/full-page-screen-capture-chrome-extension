@@ -74,6 +74,12 @@ function sendScrollMessage(tab) {
     });
 }
 
+function sendLogMessage(data) {
+    chrome.tabs.getSelected(null, function(tab) {
+        chrome.tabs.sendRequest(tab.id, {msg: 'logMessage', data: data}, function() {});
+    });
+}
+
 chrome.extension.onRequest.addListener(function(request, sender, callback) {
     if (request.msg === 'capturePage') {
         capturePage(request, sender, callback);
@@ -88,9 +94,19 @@ function capturePage(data, sender, callback) {
 
     $('bar').style.width = parseInt(data.complete * 100, 10) + '%';
 
-    // // Get window.devicePixelRatio from the page, not the popup
-    // var scale = data.devicePixelRatio && data.devicePixelRatio !== 1 ?
-    //     1 / data.devicePixelRatio : 1;
+    // Get window.devicePixelRatio from the page, not the popup
+    var scale = data.devicePixelRatio && data.devicePixelRatio !== 1 ?
+        1 / data.devicePixelRatio : 1;
+
+    // if the canvas is scaled, then x- and y-positions have to make
+    // up for it
+    if (scale !== 1) {
+        data.x = data.x / scale;
+        data.y = data.y / scale;
+        data.totalWidth = data.totalWidth / scale;
+        data.totalHeight = data.totalHeight / scale;
+    }
+
 
     if (!screenshot.canvas) {
         canvas = document.createElement('canvas');
@@ -98,6 +114,8 @@ function capturePage(data, sender, callback) {
         canvas.height = data.totalHeight;
         screenshot.canvas = canvas;
         screenshot.ctx = canvas.getContext('2d');
+
+        // sendLogMessage('TOTALDIMENSIONS: ' + data.totalWidth + ', ' + data.totalHeight);
 
         // // Scale to account for device pixel ratios greater than one. (On a
         // // MacBook Pro with Retina display, window.devicePixelRatio = 2.)
@@ -109,18 +127,14 @@ function capturePage(data, sender, callback) {
         // }
     }
 
-    // // if the canvas is scaled, then x- and y-positions have to make
-    // // up for it in the opposite direction
-    // if (scale !== 1) {
-    //     data.x = data.x / scale;
-    //     data.y = data.y / scale;
-    // }
+    // sendLogMessage(data);
 
     chrome.tabs.captureVisibleTab(
         null, {format: 'png', quality: 100}, function(dataURI) {
             if (dataURI) {
                 var image = new Image();
                 image.onload = function() {
+                    // sendLogMessage('img dims: ' + image.width + ', ' + image.height);
                     screenshot.ctx.drawImage(image, data.x, data.y);
                     callback(true);
                 };

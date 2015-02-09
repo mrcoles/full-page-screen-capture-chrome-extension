@@ -166,6 +166,9 @@ function openPage() {
     // create a blob for writing to a file
     var blob = new Blob([ab], {type: mimeString});
 
+    // come up with file-system size with a little buffer
+    var size = blob.size + (1024/2);
+
     // come up with a filename
     var name = contentURL.split('?')[0].split('#')[0];
     if (name) {
@@ -191,8 +194,8 @@ function openPage() {
     }
 
     // create a blob for writing to a file
-    window.webkitRequestFileSystem(TEMPORARY, 1024*1024, function(fs){
-        fs.root.getFile(name, {create:true}, function(fileEntry) {
+    window.webkitRequestFileSystem(window.TEMPORARY, size, function(fs){
+        fs.root.getFile(name, {create: true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
                 fileWriter.onwriteend = onwriteend;
                 fileWriter.write(blob);

@@ -182,7 +182,7 @@ function openPage() {
     } else {
         name = '';
     }
-    name = 'screencapture' + name + '.png';
+    name = 'screencapture' + name + '-' + Date.now() + '.png';
 
     function onwriteend() {
         // open the file that now contains the blob

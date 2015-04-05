@@ -10,6 +10,7 @@ https://github.com/mrcoles/full-page-screen-capture-chrome-extension
 Change Log:
 
 ```
+0.0.15 — 2015-04-05 — add timestamp to images so they are unique paths (via @HetIsNiels) and popup display fix
 0.0.14 — 2015-02-14 — more “retina” fixes
 0.0.13 — 2015-01-02 — remove scale feature to hopefully fix bugs experienced on “retina” displays
 0.0.12 — 2014-08-24 — change permissions to more restrictive “activeTab”

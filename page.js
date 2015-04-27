@@ -21,23 +21,18 @@ function max(nums) {
 }
 
 function getPositions(callback) {
-    var body = document.body,
-        widths = [
+    var widths = [
             document.documentElement.clientWidth,
-            document.body.scrollWidth,
             document.documentElement.scrollWidth,
-            document.body.offsetWidth,
             document.documentElement.offsetWidth
         ],
         heights = [
             document.documentElement.clientHeight,
-            document.body.scrollHeight,
             document.documentElement.scrollHeight,
-            document.body.offsetHeight,
             document.documentElement.offsetHeight
         ],
-        fullWidth = max(widths),
-        fullHeight = max(heights),
+        fullWidth,
+        fullHeight,
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight,
         originalX = window.scrollX,
@@ -49,9 +44,18 @@ function getPositions(callback) {
         scrollPad = 200,
         yDelta = windowHeight - (windowHeight > scrollPad ? scrollPad : 0),
         xDelta = windowWidth,
-        yPos = fullHeight - windowHeight,
+        yPos,
         xPos,
         numArrangements;
+
+	if (document.body) {
+		widths.push(document.body.scrollWidth);
+		widths.push(document.body.offsetWidth);
+		heights.push(document.body.scrollHeight);
+		heights.push(document.body.offsetHeight);
+	}
+	fullWidth = max(widths);
+	fullHeight = max(heights);
 
     // During zooming, there can be weird off-by-1 types of things...
     if (fullWidth <= xDelta + 1) {
@@ -62,6 +66,7 @@ function getPositions(callback) {
     // taking the screenshots.
     document.documentElement.style.overflow = 'hidden';
 
+	yPos = fullHeight - windowHeight;
     while (yPos > -yDelta) {
         xPos = 0;
         while (xPos < fullWidth) {

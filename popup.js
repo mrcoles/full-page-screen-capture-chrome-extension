@@ -67,7 +67,7 @@ var screenshot, contentURL = '';
 function sendScrollMessage(tab) {
     contentURL = tab.url;
     screenshot = {};
-    chrome.tabs.sendRequest(tab.id, {msg: 'scrollPage'}, function() {
+    chrome.tabs.sendMessage(tab.id, {msg: 'scrollPage'}, function() {
         // We're done taking snapshots of all parts of the window. Display
         // the resulting full screenshot image in a new browser tab.
         openPage();
@@ -75,14 +75,15 @@ function sendScrollMessage(tab) {
 }
 
 function sendLogMessage(data) {
-    chrome.tabs.getSelected(null, function(tab) {
-        chrome.tabs.sendRequest(tab.id, {msg: 'logMessage', data: data}, function() {});
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {msg: 'logMessage', data: data}, function() {});
     });
 }
 
-chrome.extension.onRequest.addListener(function(request, sender, callback) {
+chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     if (request.msg === 'capturePage') {
         capturePage(request, sender, callback);
+        return true;
     } else {
         console.error('Unknown message received from content script: ' + request.msg);
     }
@@ -208,8 +209,8 @@ function openPage() {
 // start doing stuff immediately! - including error cases
 //
 
-chrome.tabs.getSelected(null, function(tab) {
-
+chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+    var tab = tabs[0];
     if (testURLMatches(tab.url)) {
         var loaded = false;
 

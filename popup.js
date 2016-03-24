@@ -63,14 +63,14 @@ function testURLMatches(url) {
 // Events
 //
 var screenshot, contentURL = '';
-
+var numOfCanvas = 0, maxCanvasHeight = 30000, maxCanvasWidth = 30000, numOfRows = 0, numOfCols = 0;
 function sendScrollMessage(tab) {
     contentURL = tab.url;
     screenshot = {};
     chrome.tabs.sendRequest(tab.id, {msg: 'scrollPage'}, function() {
         // We're done taking snapshots of all parts of the window. Display
         // the resulting full screenshot image in a new browser tab.
-        openPage();
+        openPage(0);
     });
 }
 
@@ -109,12 +109,30 @@ function capturePage(data, sender, callback) {
 
 
     if (!screenshot.canvas) {
-        canvas = document.createElement('canvas');
-        canvas.width = data.totalWidth;
-        canvas.height = data.totalHeight;
-        screenshot.canvas = canvas;
-        screenshot.ctx = canvas.getContext('2d');
+        numOfCols = Math.ceil(data.totalWidth/ maxCanvasWidth);
+        numOfRows = Math.ceil(data.totalHeight/ maxCanvasHeight);
+        numOfCanvas = numOfCols * numOfRows;
 
+        screenshot.canvas = [];
+        screenshot.ctx = [];
+        for (var j = 0 ; j < numOfRows ; j++){
+            for (var i = 0 ; i < numOfCols; i++){
+                canvas = document.createElement('canvas');
+                if (i == numOfCols-1){
+                    canvas.width = data.totalWidth % maxCanvasWidth;
+                } else {
+                    canvas.width = maxCanvasWidth;
+                }
+                if (j == numOfRows-1){
+                    canvas.height = data.totalHeight % maxCanvasHeight;
+                } else {
+                    canvas.height = maxCanvasHeight;
+                }
+                screenshot.canvas.push(canvas);
+                screenshot.ctx.push(canvas.getContext('2d'));
+            }
+        }
+            
         // sendLogMessage('TOTALDIMENSIONS: ' + data.totalWidth + ', ' + data.totalHeight);
 
         // // Scale to account for device pixel ratios greater than one. (On a
@@ -135,7 +153,74 @@ function capturePage(data, sender, callback) {
                 var image = new Image();
                 image.onload = function() {
                     // sendLogMessage('img dims: ' + image.width + ', ' + image.height);
-                    screenshot.ctx.drawImage(image, data.x, data.y);
+                    var col, row, 
+                        startx, starty, 
+                        remainWidth, remainHeight, 
+                        isWidthOverflow, isHeightOverflow,
+                        clipx, clipy,
+                        swidth, sheight;
+
+                    col = Math.floor(data.x / maxCanvasWidth);
+                    row = Math.floor(data.y / maxCanvasHeight);
+
+                    startx = data.x % maxCanvasWidth;
+                    starty = data.y % maxCanvasHeight;
+
+                    remainHeight = image.height;
+                    remainWidth = image.width;
+
+                    isWidthOverflow = startx + image.width > maxCanvasWidth;
+                    isHeightOverflow = starty + image.height > maxCanvasHeight;
+
+                    clipx = 0;
+                    clipy = 0;
+
+                    if (isHeightOverflow){
+                        sheight = maxCanvasHeight - starty;
+                    } else {
+                        sheight = image.height;
+                    }
+
+                    while (remainHeight > 0){
+                        //settings for 1st col
+                        col = Math.floor(data.x / maxCanvasWidth);
+                        startx = data.x % maxCanvasWidth;
+                        remainWidth = image.width;
+                        clipx = 0;
+
+                        if (isWidthOverflow){
+                            swidth = maxCanvasWidth - startx;
+                        } else {
+                            swidth = image.width;
+                        }
+                        while (remainWidth > 0){
+                            screenshot.ctx[numOfCols*row + col].drawImage(image, clipx, clipy, swidth, sheight, startx, starty, swidth, sheight);
+
+                            col = col + 1;
+                            startx = 0;
+                            remainWidth = remainWidth - swidth;
+                            clipx = clipx + swidth;
+
+                            if (remainWidth >= maxCanvasWidth){
+                                swidth = maxCanvasWidth;
+                            } else {
+                                swidth = remainWidth;
+                            }
+                        }
+
+                        //set next row
+                        row = row + 1;
+                        starty = 0;
+                        remainHeight = remainHeight - sheight;
+                        clipy = clipy + sheight;
+
+                        if (remainHeight >= maxCanvasHeight){
+                            sheight = maxCanvasHeight;
+                        } else {
+                            sheight = remainHeight;
+                        }
+                    }
+
                     callback(true);
                 };
                 image.src = dataURI;
@@ -143,11 +228,11 @@ function capturePage(data, sender, callback) {
         });
 }
 
-function openPage() {
+function openPage(canvasIndex) {
     // standard dataURI can be too big, let's blob instead
     // http://code.google.com/p/chromium/issues/detail?id=69227#c27
 
-    var dataURI = screenshot.canvas.toDataURL();
+    var dataURI = screenshot.canvas[canvasIndex].toDataURL();
 
     // convert base64 to raw binary data held in a string
     // doesn't handle URLEncoded DataURIs
@@ -182,19 +267,33 @@ function openPage() {
     } else {
         name = '';
     }
-    name = 'screencapture' + name + '-' + Date.now() + '.png';
+    if (numOfCanvas == 1){
+        name = 'screencapture' + name + '-' + Date.now() + '.png';
+    } else {
+        name = 'screencapture' + name + '-' + Date.now() + '-' + canvasIndex + '.png';
+    }
 
     function onwriteend() {
         // open the file that now contains the blob
-        window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + name);
+        //window.open('filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + name);
+        var urlName = 'filesystem:chrome-extension://' + chrome.i18n.getMessage('@@extension_id') + '/temporary/' + name;
+
+        if (canvasIndex < numOfCanvas-1){
+            chrome.tabs.create({ url: urlName, active: false });
+            openPage(canvasIndex+1);
+        } else {
+            chrome.tabs.create({ url: urlName, active: true });
+        }
     }
 
     function errorHandler() {
         show('uh-oh');
     }
 
+    window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+
     // create a blob for writing to a file
-    window.webkitRequestFileSystem(window.TEMPORARY, size, function(fs){
+    window.requestFileSystem(window.TEMPORARY, size, function(fs){
         fs.root.getFile(name, {create: true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
                 fileWriter.onwriteend = onwriteend;

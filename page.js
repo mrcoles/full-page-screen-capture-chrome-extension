@@ -21,8 +21,18 @@ function max(nums) {
 }
 
 function getPositions(callback) {
+
     var body = document.body,
-        widths = [
+        originalBodyOverflowYStyle = body.style.overflowY,
+        originalX = window.scrollX,
+        originalY = window.scrollY,
+        originalOverflowStyle = document.documentElement.style.overflow;
+
+    // try to make pages with bad scrolling work, e.g., ones with
+    // `body { overflow-y: scroll; }` can break `window.scrollTo`
+    body.style.overflowY = 'visible';
+
+    var widths = [
             document.documentElement.clientWidth,
             document.body.scrollWidth,
             document.documentElement.scrollWidth,
@@ -35,14 +45,15 @@ function getPositions(callback) {
             document.documentElement.scrollHeight,
             document.body.offsetHeight,
             document.documentElement.offsetHeight
+            // (Array.prototype.slice.call(document.getElementsByTagName('*'), 0)
+            //  .reduce(function(val, elt) {
+            //      var h = elt.offsetHeight; return h > val ? h : val;
+            //  }, 0))
         ],
         fullWidth = max(widths),
         fullHeight = max(heights),
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight,
-        originalX = window.scrollX,
-        originalY = window.scrollY,
-        originalOverflowStyle = document.documentElement.style.overflow,
         arrangements = [],
         // pad the vertical scrolling to try to deal with
         // sticky headers, 250 is an arbitrary size
@@ -84,6 +95,7 @@ function getPositions(callback) {
 
     function cleanUp() {
         document.documentElement.style.overflow = originalOverflowStyle;
+        document.body.style.overflowY = originalBodyOverflowYStyle;
         window.scrollTo(originalX, originalY);
     }
 

@@ -151,11 +151,9 @@ function _initScreenshots(totalWidth, totalHeight) {
     // We have to account for multiple canvases if too large,
     // because Chrome won't generate an image otherwise.
     //
-    var badSize = ((totalHeight > MAX_PRIMARY_DIMENSION &&
-                    totalWidth > MAX_SECONDARY_DIMENSION) ||
-                   (totalWidth > MAX_PRIMARY_DIMENSION &&
-                    totalHeight > MAX_SECONDARY_DIMENSION) ||
-                   (totalHeight * totalWidth > MAX_AREA)),
+    var badSize = (totalHeight > MAX_PRIMARY_DIMENSION ||
+                   totalWidth > MAX_PRIMARY_DIMENSION ||
+                   totalHeight * totalWidth > MAX_AREA),
         biggerWidth = totalWidth > totalHeight,
         maxWidth = (!badSize ? totalWidth :
                     (biggerWidth ? MAX_PRIMARY_DIMENSION : MAX_SECONDARY_DIMENSION)),

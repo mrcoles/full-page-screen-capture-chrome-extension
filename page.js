@@ -24,27 +24,29 @@ function max(nums) {
 function getPositions(callback) {
 
     var body = document.body,
-        originalBodyOverflowYStyle = body.style.overflowY,
+        originalBodyOverflowYStyle = body ? body.style.overflowY : '',
         originalX = window.scrollX,
         originalY = window.scrollY,
         originalOverflowStyle = document.documentElement.style.overflow;
 
     // try to make pages with bad scrolling work, e.g., ones with
     // `body { overflow-y: scroll; }` can break `window.scrollTo`
-    body.style.overflowY = 'visible';
+    if (body) {
+        body.style.overflowY = 'visible';
+    }
 
     var widths = [
             document.documentElement.clientWidth,
-            document.body.scrollWidth,
+            body ? body.scrollWidth : 0,
             document.documentElement.scrollWidth,
-            document.body.offsetWidth,
+            body ? body.offsetWidth : 0,
             document.documentElement.offsetWidth
         ],
         heights = [
             document.documentElement.clientHeight,
-            document.body.scrollHeight,
+            body ? body.scrollHeight : 0,
             document.documentElement.scrollHeight,
-            document.body.offsetHeight,
+            body ? body.offsetHeight : 0,
             document.documentElement.offsetHeight
             // (Array.prototype.slice.call(document.getElementsByTagName('*'), 0)
             //  .reduce(function(val, elt) {
@@ -96,7 +98,9 @@ function getPositions(callback) {
 
     function cleanUp() {
         document.documentElement.style.overflow = originalOverflowStyle;
-        document.body.style.overflowY = originalBodyOverflowYStyle;
+        if (body) {
+            body.style.overflowY = originalBodyOverflowYStyle;
+        }
         window.scrollTo(originalX, originalY);
     }
 

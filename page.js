@@ -1,19 +1,20 @@
 
 var CAPTURE_DELAY = 150;
 
-function onMessage(request, sender, callback) {
-    if (request.msg === 'scrollPage') {
+function onMessage(data, sender, callback) {
+    if (data.msg === 'scrollPage') {
         getPositions(callback);
-    } else if (request.msg == 'logMessage') {
-        console.log('[POPUP LOG]', request.data);
+        return true;
+    } else if (data.msg == 'logMessage') {
+        console.log('[POPUP LOG]', data.data);
     } else {
-        console.error('Unknown message received from background: ' + request.msg);
+        console.error('Unknown message received from background: ' + data.msg);
     }
 }
 
 if (!window.hasScreenCapturePage) {
     window.hasScreenCapturePage = true;
-    chrome.extension.onRequest.addListener(onMessage);
+    chrome.runtime.onMessage.addListener(onMessage);
 }
 
 function max(nums) {
@@ -131,7 +132,7 @@ function getPositions(callback) {
             // In case the below callback never returns, cleanup
             var cleanUpTimeout = window.setTimeout(cleanUp, 1250);
 
-            chrome.extension.sendRequest(data, function(captured) {
+            chrome.runtime.sendMessage(data, function(captured) {
                 window.clearTimeout(cleanUpTimeout);
                 // console.log('>> POPUP LOG', captured);
 

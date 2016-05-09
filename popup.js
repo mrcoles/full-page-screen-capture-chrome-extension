@@ -220,6 +220,11 @@ function openPage(screenshotIndex) {
     //
     screenshotIndex = screenshotIndex || 0;
 
+    if (!screenshots) {
+        show('uh-oh');
+        return;
+    }
+
     var dataURI = screenshots[screenshotIndex].canvas.toDataURL();
 
     // convert base64 to raw binary data held in a string

@@ -90,53 +90,42 @@ chrome.extension.onRequest.addListener(function(request, sender, callback) {
 
 
 function capturePage(data, sender, callback) {
-    var canvas;
-
     $('bar').style.width = parseInt(data.complete * 100, 10) + '%';
-
-    // Get window.devicePixelRatio from the page, not the popup
-    var scale = data.devicePixelRatio && data.devicePixelRatio !== 1 ?
-        1 / data.devicePixelRatio : 1;
-
-    // if the canvas is scaled, then x- and y-positions have to make
-    // up for it
-    if (scale !== 1) {
-        data.x = data.x / scale;
-        data.y = data.y / scale;
-        data.totalWidth = data.totalWidth / scale;
-        data.totalHeight = data.totalHeight / scale;
-    }
-
-
-    if (!screenshot.canvas) {
-        canvas = document.createElement('canvas');
-        canvas.width = data.totalWidth;
-        canvas.height = data.totalHeight;
-        screenshot.canvas = canvas;
-        screenshot.ctx = canvas.getContext('2d');
-
-        // sendLogMessage('TOTALDIMENSIONS: ' + data.totalWidth + ', ' + data.totalHeight);
-
-        // // Scale to account for device pixel ratios greater than one. (On a
-        // // MacBook Pro with Retina display, window.devicePixelRatio = 2.)
-        // if (scale !== 1) {
-        //     // TODO - create option to not scale? It's not clear if it's
-        //     // better to scale down the image or to just draw it twice
-        //     // as large.
-        //     screenshot.ctx.scale(scale, scale);
-        // }
-    }
-
-    // sendLogMessage(data);
 
     chrome.tabs.captureVisibleTab(
         null, {format: 'png', quality: 100}, function(dataURI) {
             if (dataURI) {
                 var image = new Image();
                 image.onload = function() {
-                    // sendLogMessage('img dims: ' + image.width + ', ' + image.height);
+                    data.image = {width: image.width, height: image.height};
+
+                    // given device mode emulation or zooming, we may end up with
+                    // a different sized image than expected, so let's adjust to
+                    // match it!
+                    if (data.windowWidth !== image.width) {
+                        var scale = image.width / data.windowWidth;
+                        data.x *= scale;
+                        data.y *= scale;
+                        data.totalWidth *= scale;
+                        data.totalHeight *= scale;
+                    }
+
+                    // lazy initialization of canvas (since we need to wait
+                    // for actual image size)
+                    if (!screenshot.canvas) {
+                        var canvas = document.createElement('canvas');
+                        canvas.width = data.totalWidth;
+                        canvas.height = data.totalHeight;
+                        screenshot.canvas = canvas;
+                        screenshot.ctx = canvas.getContext('2d');
+                    }
+
+                    // draw it
                     screenshot.ctx.drawImage(image, data.x, data.y);
-                    callback(true);
+
+                    // send back log data for debugging (but keep it truthy to
+                    // indicate success)
+                    callback(JSON.stringify(data, null, 4) || true);
                 };
                 image.src = dataURI;
             }

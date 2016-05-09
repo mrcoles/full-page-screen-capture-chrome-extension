@@ -118,10 +118,13 @@ function getPositions(callback) {
             x: window.scrollX,
             y: window.scrollY,
             complete: (numArrangements-arrangements.length)/numArrangements,
+            windowWidth: windowWidth,
             totalWidth: fullWidth,
             totalHeight: fullHeight,
             devicePixelRatio: window.devicePixelRatio
         };
+
+        // console.log('>> DATA', JSON.stringify(data, null, 4));
 
         // Need to wait for things to settle
         window.setTimeout(function() {
@@ -130,6 +133,8 @@ function getPositions(callback) {
 
             chrome.extension.sendRequest(data, function(captured) {
                 window.clearTimeout(cleanUpTimeout);
+                // console.log('>> POPUP LOG', captured);
+
                 if (captured) {
                     // Move on to capture next arrangement.
                     processArrangements();

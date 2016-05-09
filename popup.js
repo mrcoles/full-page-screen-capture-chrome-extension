@@ -123,6 +123,10 @@ function capturePage(data, sender, callback) {
                     // for actual image size)
                     if (!screenshots) {
                         screenshots = _initScreenshots(data.totalWidth, data.totalHeight);
+                        if (screenshots.length > 1) {
+                            show('split-image');
+                            $('screenshot-count').innerText = screenshots.length;
+                        }
                     }
 
                     // draw it on matching screenshot canvases

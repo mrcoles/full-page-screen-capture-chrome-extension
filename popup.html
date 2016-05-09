@@ -47,8 +47,13 @@ a:active { color: #000; }
 }
 p { word-wrap: break-word; }
 
-#invalid,
-#uh-oh {
+.warning {
+    margin-top: 1em;
+    color: #aa8d3b;
+    font-style: italic;
+    font-weight: bold;
+}
+.error {
     margin-top: 1em;
     font-weight: bold;
     color: #b33;
@@ -63,16 +68,22 @@ p { word-wrap: break-word; }
                   <br>
                   <p>
                       Screen capture in progress, your finished image will open in a
-                      new window once completed.
+                      new window once completed. Please wait for the progress bar to
+                      finish.
                   </p>
               </div>
           </div>
-          <div id="invalid">
+          <div id="split-image" class="warning">
+              Note: your page is too large for the Chrome browser to capture as
+              one image. It will be split into <span id="screenshot-count">multiple</span>
+              images.
+          </div>
+          <div id="invalid" class="error">
               Full Page Screen Capture cannot be run on this type of URL
               because of Google Chrome Web Store policies. Try
               another page on the web.
           </div>
-          <div id="uh-oh">
+          <div id="uh-oh" class="error">
               Uh oh, something went wrong! Try reloading the page
               and running this again. If the problem persists,
               please report the error in the

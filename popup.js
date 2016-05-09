@@ -1,6 +1,7 @@
 // Copyright (c) 2012,2013 Peter Coles - http://mrcoles.com/ - All rights reserved.
 // Use of this source code is governed by the MIT License found in LICENSE
 
+
 //
 // console object for debugging
 //
@@ -28,18 +29,23 @@ var log = (function() {
     };
 })();
 
+
 //
 // utility methods
 //
+
 function $(id) { return document.getElementById(id); }
 function show(id) { $(id).style.display = 'block'; }
 function hide(id) { $(id).style.display = 'none'; }
 
+
 //
 // URL Matching test - to verify we can talk to this URL
 //
+
 var matches = ['http://*/*', 'https://*/*', 'ftp://*/*', 'file://*/*'],
     noMatches = [/^https?:\/\/chrome.google.com\/.*$/];
+
 function testURLMatches(url) {
     // couldn't find a better way to tell if executeScript
     // wouldn't work -- so just testing against known urls
@@ -59,9 +65,11 @@ function testURLMatches(url) {
     return false;
 }
 
+
 //
 // Events
 //
+
 var screenshot, contentURL = '';
 
 function sendScrollMessage(tab) {
@@ -86,9 +94,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         return true;
     } else {
         console.error('Unknown message received from content script: ' + request.msg);
+        return false;
     }
 });
-
 
 function capturePage(data, sender, callback) {
     $('bar').style.width = parseInt(data.complete * 100, 10) + '%';
@@ -193,6 +201,7 @@ function openPage() {
         }, errorHandler);
     }, errorHandler);
 }
+
 
 //
 // start doing stuff immediately! - including error cases

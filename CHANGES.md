@@ -1,6 +1,8 @@
-The simplest way to take a full page screen capture of your current browser window. Click on the extension in your browser bar, wait for the image version of the web page to be generated, and then it will open up in a new tab that you can save-as or just drag to your desktop. No bloat, just a simple way to turn a full web page into an image.
+Screen capture your current page in entirety and reliably!
 
-For best results ensure the zoom of the page you’re capturing is set to “Actual Size” from the “View” menu. Also, the only way to screenshot the entire page is to scroll to each visible part, so please be patient as it quickly assembles all the pieces.
+The simplest way to take a full page screenshot of your current browser window. Click on the extension in your browser bar (or press Alt+Shift+P), watch the extension catpure each part of the page, and be transported to a new tab of your image that you can right-click to save-as or just drag to your desktop. No bloat, just a simple way to turn a full web page into an image.
+
+The only way to screenshot the entire page is to scroll to each visible part, so please be patient as it quickly assembles all the pieces. For the rare scenario where your page is too large for Chrome to store it in one image, it will let you know and split it up into just enough images in separate tabs.
 
 This is an open source project. Visit the Full Page Screen Capture Github page for more information, bug reports, or to contribute:
 
@@ -10,6 +12,7 @@ https://github.com/mrcoles/full-page-screen-capture-chrome-extension
 Change Log:
 
 ```
+1.0.0 - 2016-05-09 - this is a major release: introduces keyboard shortcut, splitting of images for pages that are too long, better handling of zoomed/emulator pages, more subtle gray icon, SVG support, and stability fixes (thank you @bluememory14, @BSierakowski, @denilsonsa, and all submitters of bug reports)
 0.0.15 — 2015-04-05 — add timestamp to images so they are unique paths (via @HetIsNiels) and popup display fix
 0.0.14 — 2015-02-14 — more “retina” fixes
 0.0.13 — 2015-01-02 — remove scale feature to hopefully fix bugs experienced on “retina” displays

@@ -46,6 +46,13 @@ a:active { color: #000; }
     background: #fff url(loader.gif) scroll no-repeat center right;
 }
 p { word-wrap: break-word; }
+
+#invalid,
+#uh-oh {
+    margin-top: 1em;
+    font-weight: bold;
+    color: #b33;
+}
       </style>
   </head>
   <body>
@@ -55,16 +62,15 @@ p { word-wrap: break-word; }
               <div class="clr">
                   <br>
                   <p>
-                      For best results, don’t mouse over the page during
-                      capture and set “Actual Size” from the “View” menu.<br>
-                      Your finished image will open in a new window.
+                      Screen capture in progress, your finished image will open in a
+                      new window once completed.
                   </p>
               </div>
           </div>
           <div id="invalid">
-              Full Page Screen Capture cannot be run on this page
+              Full Page Screen Capture cannot be run on this type of URL
               because of Google Chrome Web Store policies. Try
-              another page on the web!
+              another page on the web.
           </div>
           <div id="uh-oh">
               Uh oh, something went wrong! Try reloading the page

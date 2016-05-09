@@ -73,7 +73,7 @@ function testURLMatches(url) {
 var screenshots,
     contentURL = '',
     // max dimensions based off testing limits of screen capture
-    MAX_PRIMARY_DIMENSION = 30000 * 2,
+    MAX_PRIMARY_DIMENSION = 15000 * 2,
     MAX_SECONDARY_DIMENSION = 4000 * 2,
     MAX_AREA = MAX_PRIMARY_DIMENSION * MAX_SECONDARY_DIMENSION;
 

@@ -3,34 +3,6 @@
 
 
 //
-// console object for debugging
-//
-
-var log = (function() {
-    var parElt = document.getElementById('wrap'),
-        logElt = document.createElement('div');
-    logElt.id = 'log';
-    logElt.style.display = 'block';
-    parElt.appendChild(logElt);
-
-    return function() {
-        var a, p, results = [];
-        for (var i=0, len=arguments.length; i<len; i++) {
-            a = arguments[i];
-            try {
-                a = JSON.stringify(a, null, 2);
-            } catch(e) {}
-            results.push(a);
-        }
-        p = document.createElement('p');
-        p.innerText = results.join(' ');
-        p.innerHTML = p.innerHTML.replace(/ /g, '&nbsp;');
-        logElt.appendChild(p);
-    };
-})();
-
-
-//
 // Utility methods
 //
 
@@ -72,6 +44,8 @@ function testURLMatches(url) {
 
 var screenshots,
     contentURL = '',
+    currentTab = null,
+    resultWindowId = undefined,
     // max dimensions based off testing limits of screen capture
     MAX_PRIMARY_DIMENSION = 15000 * 2,
     MAX_SECONDARY_DIMENSION = 4000 * 2,
@@ -272,7 +246,30 @@ function openPage(screenshotIndex) {
                        chrome.i18n.getMessage('@@extension_id') +
                        '/temporary/' + name);
         var last = screenshotIndex === screenshots.length - 1;
-        chrome.tabs.create({url: urlName, active: last});
+
+        if (currentTab.incognito && screenshotIndex === 0) {
+            // cannot access file system in incognito, so open in non-incognito
+            // window and add any additional tabs to that window.
+            //
+            // we have to be careful with focused too, because that will close
+            // the popup.
+            chrome.windows.create({
+                url: urlName,
+                incognito: false,
+                focused: last
+            }, function(win) {
+                resultWindowId = win.id;
+            });
+        } else {
+            chrome.tabs.create({
+                url: urlName,
+                active: last,
+                windowId: resultWindowId,
+                openerTabId: currentTab.id,
+                index: (currentTab.incognito ? 0 : currentTab.index) + 1 + screenshotIndex
+            });
+        }
+
         if (!last) {
             openPage(screenshotIndex + 1);
         }
@@ -299,8 +296,9 @@ function openPage(screenshotIndex) {
 // start doing stuff immediately! - including error cases
 //
 
-chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     var tab = tabs[0];
+    currentTab = tab; // used in later calls to get tab info
     if (testURLMatches(tab.url)) {
         var loaded = false;
 

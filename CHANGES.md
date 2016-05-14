@@ -12,7 +12,8 @@ https://github.com/mrcoles/full-page-screen-capture-chrome-extension
 Change Log:
 
 ```
-1.0.0 - 2016-05-09 - this is a major release: introduces keyboard shortcut, splitting of images for pages that are too long, better handling of zoomed/emulator pages, more subtle gray icon, SVG support, and stability fixes (thank you @bluememory14, @BSierakowski, @denilsonsa, and all submitters of bug reports)
+1.0.1 — 2016-05-14 — fix incognito mode "File not found" bug and better tab handling
+1.0.0 — 2016-05-09 — this is a major release: introduces keyboard shortcut, splitting of images for pages that are too long, better handling of zoomed/emulator pages, more subtle gray icon, SVG support, and stability fixes (thank you @bluememory14, @BSierakowski, @denilsonsa, and all submitters of bug reports)
 0.0.15 — 2015-04-05 — add timestamp to images so they are unique paths (via @HetIsNiels) and popup display fix
 0.0.14 — 2015-02-14 — more “retina” fixes
 0.0.13 — 2015-01-02 — remove scale feature to hopefully fix bugs experienced on “retina” displays
@@ -26,6 +27,6 @@ Change Log:
 0.0.5 — 2013–01–21 — Fixed small bug in 0.0.4
 0.0.4 — 2013–01–21 — Replaced deprecated BlobBuilder with Blob (via @gleitz)
 0.0.3 — 2012-11-25 — Removed need to reload pages that were open before the extension is installed.
-0.0.2 — 2012–11–21 — Better messaging for pages that can't be screen captured (e.g., content scripts cannot run on the chrome webstore), and the generated image now incorporates the URL into its name.
-0.0.1 — 2012–11–06 — Initial release.
+0.0.2 — 2012-11-21 — Better messaging for pages that can't be screen captured (e.g., content scripts cannot run on the chrome webstore), and the generated image now incorporates the URL into its name.
+0.0.1 — 2012-11-06 — Initial release.
 ```

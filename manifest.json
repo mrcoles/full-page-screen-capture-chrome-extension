@@ -1,6 +1,6 @@
 {
   "name": "Full Page Screen Capture",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 2,
   "description": "Screen capture your current page in entirety and reliably!",
   "browser_action": {

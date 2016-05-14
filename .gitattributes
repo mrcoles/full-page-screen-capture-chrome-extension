@@ -1,0 +1,6 @@
+.gitattributes export-ignore
+.gitignore export-ignore
+archiver.sh export-ignore
+promo-440-280.png export-ignore
+/psds export-ignore
+/screenshots export-ignore

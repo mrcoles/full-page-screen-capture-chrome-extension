@@ -85,7 +85,7 @@ function getPositions(callback) {
         yPos -= yDelta;
     }
 
-    /** * /
+    /** */
     console.log('fullHeight', fullHeight, 'fullWidth', fullWidth);
     console.log('windowWidth', windowWidth, 'windowHeight', windowHeight);
     console.log('xDelta', xDelta, 'yDelta', yDelta);
@@ -119,7 +119,7 @@ function getPositions(callback) {
         window.scrollTo(x, y);
 
         var data = {
-            msg: 'capturePage',
+            msg: 'capture',
             x: window.scrollX,
             y: window.scrollY,
             complete: (numArrangements-arrangements.length)/numArrangements,
@@ -138,7 +138,6 @@ function getPositions(callback) {
 
             chrome.runtime.sendMessage(data, function(captured) {
                 window.clearTimeout(cleanUpTimeout);
-                // console.log('>> POPUP LOG', captured);
 
                 if (captured) {
                     // Move on to capture next arrangement.

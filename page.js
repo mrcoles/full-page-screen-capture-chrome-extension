@@ -65,7 +65,14 @@ function getPositions(callback) {
         xDelta = windowWidth,
         yPos = fullHeight - windowHeight,
         xPos,
-        numArrangements;
+        numArrangements,
+        fixedElements = Array.prototype.filter.call(document.querySelectorAll("body *"), function (el) {
+			if (el.style.position === "fixed") {
+				el.style.position = "absolute";
+				return true;
+			}
+			return false;
+		});
 
     // During zooming, there can be weird off-by-1 types of things...
     if (fullWidth <= xDelta + 1) {
@@ -97,6 +104,9 @@ function getPositions(callback) {
     numArrangements = arrangements.length;
 
     function cleanUp() {
+        fixedElements.forEach(function (el) {
+			el.style.position = "fixed";
+		});
         document.documentElement.style.overflow = originalOverflowStyle;
         if (body) {
             body.style.overflowY = originalBodyOverflowYStyle;

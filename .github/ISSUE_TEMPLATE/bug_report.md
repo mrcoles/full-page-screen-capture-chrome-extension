@@ -29,7 +29,7 @@ If applicable, add screenshots to help explain your problem.
 
  - OS: [e.g. Mac OS X 10.13.5, Windows 10.0.0, 18.04.1 LTS]
  - Browser and version [e.g. Chrome v68.0.3440]
- - Version [e.g. 22]
+ - Extension version [e.g. 4.8] (get from chrome://extensions/?id=fdpohaocaechififmbbbbbknoalclacl)
 
 **Additional context**
 

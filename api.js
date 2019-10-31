@@ -44,7 +44,7 @@ window.CaptureAPI = (function() {
 
     function capture(data, screenshots, sendResponse, splitnotifier) {
         chrome.tabs.captureVisibleTab(
-            null, {format: 'png', quality: 100}, function(dataURI) {
+            null, {format: 'png'}, function(dataURI) {
                 if (dataURI) {
                     var image = new Image();
                     image.onload = function() {

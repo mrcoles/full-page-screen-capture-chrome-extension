@@ -131,14 +131,82 @@ function getPositions(callback) {
 
         // console.log('>> DATA', JSON.stringify(data, null, 4));
 
+        var ___full_page_screen_capture_selfSetTimeout = function(func, ms, ...args){
+            const UUIDGeneratorBrowser = () =>
+            ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+            (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+            );
+            var uuid = UUIDGeneratorBrowser();
+            const start = new Date();
+            start.setMilliseconds(start.getMilliseconds() + ms);
+            var func2 = func;
+            if (typeof(window.___full_page_screen_capture_selfSetTimeoutTable) === "undefined") {
+                window.___full_page_screen_capture_selfSetTimeoutTable = {};
+            }
+            window.___full_page_screen_capture_selfSetTimeoutTable[uuid] = true;
+            (function check() {
+                if (window.___full_page_screen_capture_selfSetTimeoutTable[uuid]) {
+                    var current_date = new Date();
+                    var seconds_diff = (current_date - start) / 1000;
+                    if (seconds_diff >= 0) {
+                        delete window.___full_page_screen_capture_selfSetTimeoutTable[uuid];
+                        func2(...args);
+                    } else {
+                        requestAnimationFrame(check);
+                    }
+                }
+                else {
+                    delete window.___full_page_screen_capture_selfSetTimeoutTable[uuid];
+                }
+                
+            })()
+            return uuid;
+        }
+
         // Need to wait for things to settle
-        window.setTimeout(function() {
+        ___full_page_screen_capture_selfSetTimeout(function() {
             // In case the below callback never returns, cleanup
-            var cleanUpTimeout = window.setTimeout(cleanUp, 1250);
+            var ___full_page_screen_capture_selfSetTimeout = function(func, ms, ...args){
+                const UUIDGeneratorBrowser = () =>
+                ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+                (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+                );
+                var uuid = UUIDGeneratorBrowser();
+                const start = new Date();
+                start.setMilliseconds(start.getMilliseconds() + ms);
+                var func2 = func;
+                if (typeof(window.___full_page_screen_capture_selfSetTimeoutTable) === "undefined") {
+                    window.___full_page_screen_capture_selfSetTimeoutTable = {};
+                }
+                window.___full_page_screen_capture_selfSetTimeoutTable[uuid] = true;
+                (function check() {
+                    if (window.___full_page_screen_capture_selfSetTimeoutTable[uuid]) {
+                        var current_date = new Date();
+                        var seconds_diff = (current_date - start) / 1000;
+                        if (seconds_diff >= 0) {
+                            delete window.___full_page_screen_capture_selfSetTimeoutTable[uuid];
+                            func2(...args);
+                        } else {
+                            requestAnimationFrame(check);
+                        }
+                    }
+                    else {
+                        delete window.___full_page_screen_capture_selfSetTimeoutTable[uuid];
+                    }
+                    
+                })()
+                return uuid;
+            }
+    
+            var ___full_page_screen_capture_selfClearTimeout = function(uuid) {
+                if (uuid in ___full_page_screen_capture_selfSetTimeoutTable) {
+                    ___full_page_screen_capture_selfSetTimeoutTable[uuid] = false;
+                }
+            }
+            var cleanUpTimeout = ___full_page_screen_capture_selfSetTimeout(cleanUp, 1250);
 
             chrome.runtime.sendMessage(data, function(captured) {
-                window.clearTimeout(cleanUpTimeout);
-
+                ___full_page_screen_capture_selfClearTimeout(cleanUpTimeout);
                 if (captured) {
                     // Move on to capture next arrangement.
                     processArrangements();

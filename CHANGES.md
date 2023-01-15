@@ -1,6 +1,6 @@
 Screen capture your current page in entirety and reliably!
 
-The simplest way to take a full page screenshot of your current browser window. Click on the extension in your browser bar (or press Alt+Shift+P), watch the extension catpure each part of the page, and be transported to a new tab of your image that you can right-click to save-as or just drag to your desktop. No bloat, just a simple way to turn a full web page into an image.
+The simplest way to take a full page screenshot of your current browser window. Click on the extension in your browser bar (or press Alt+Shift+P), watch the extension capture each part of the page, and be transported to a new tab of your image that you can right-click to save-as or just drag to your desktop. No bloat, just a simple way to turn a full web page into an image.
 
 The only way to screenshot the entire page is to scroll to each visible part, so please be patient as it quickly assembles all the pieces. For the rare scenario where your page is too large for Chrome to store it in one image, it will let you know and split it up into just enough images in separate tabs.
 

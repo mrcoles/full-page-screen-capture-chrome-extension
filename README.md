@@ -15,7 +15,7 @@ For development:
 
 From the webstore:
 
-Find the [Full Page Screen Capture App](https://chrome.google.com/webstore/detail/full-page-screen-capture/fdpohaocaechififmbbbbbknoalclacl) in the Chrome Webstore and click install. (NOTE: the webstore version is now running on a private branch of this repo and will have more updates.)
+Find the [Full Page Screen Capture App](https://chromewebstore.google.com/detail/full-page-screen-capture/fdpohaocaechififmbbbbbknoalclacl) in the Chrome Webstore and click install. (NOTE: the webstore version is now running on a private branch of this repo and will have more updates.)
 
 ### Extra notes:
 

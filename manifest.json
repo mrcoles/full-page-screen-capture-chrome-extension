@@ -1,20 +1,26 @@
 {
-  "name": "Full Page Screen Capture",
-  "version": "1.0.1",
-  "manifest_version": 2,
-  "description": "Screen capture your current page in entirety and reliably!",
-  "browser_action": {
+  "name": "Captura de Página Inteira",
+  "version": "2.0.0",
+  "manifest_version": 3,
+  "description": "Capture páginas inteiras com fidelidade e copie a imagem para a área de transferência.",
+  "action": {
     "default_icon": "icon-999.png",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_title": "Capturar página inteira"
   },
   "commands": {
-    "_execute_browser_action": {
+    "_execute_action": {
       "suggested_key": {
         "default": "Alt+Shift+P"
-      }
+      },
+      "description": "Capturar a página inteira"
     }
   },
-  "permissions": [ "activeTab", "storage", "unlimitedStorage" ],
+  "permissions": [
+    "activeTab",
+    "clipboardWrite",
+    "scripting"
+  ],
   "icons": {
     "16": "icon16-999.png",
     "48": "icon48-999.png",

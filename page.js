@@ -1,14 +1,15 @@
 
-var CAPTURE_DELAY = 150;
+// O Chrome limita a frequência de captureVisibleTab a duas chamadas por segundo.
+var CAPTURE_DELAY = 550;
 
 function onMessage(data, sender, callback) {
     if (data.msg === 'scrollPage') {
         getPositions(callback);
         return true;
     } else if (data.msg == 'logMessage') {
-        console.log('[POPUP LOG]', data.data);
+        console.log('[REGISTRO DO POPUP]', data.data);
     } else {
-        console.error('Unknown message received from background: ' + data.msg);
+        console.error('Mensagem desconhecida recebida da extensão: ' + data.msg);
     }
 }
 
@@ -86,12 +87,12 @@ function getPositions(callback) {
     }
 
     /** */
-    console.log('fullHeight', fullHeight, 'fullWidth', fullWidth);
-    console.log('windowWidth', windowWidth, 'windowHeight', windowHeight);
-    console.log('xDelta', xDelta, 'yDelta', yDelta);
+    console.log('altura total', fullHeight, 'largura total', fullWidth);
+    console.log('largura da janela', windowWidth, 'altura da janela', windowHeight);
+    console.log('incremento horizontal', xDelta, 'incremento vertical', yDelta);
     var arText = [];
     arrangements.forEach(function(x) { arText.push('['+x.join(',')+']'); });
-    console.log('arrangements', arText.join(', '));
+    console.log('posições da captura', arText.join(', '));
     /**/
 
     numArrangements = arrangements.length;

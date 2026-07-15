@@ -1,105 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
   <head>
-      <meta charset=utf-8>
-      <title>Full page screen catpure</title>
-      <!-- there are rendering bugs when styles aren't inline... -->
-      <style>
-body {
-    font: normal 12px/16px helvetica,aria,sans-serif;
-}
-div,p { margin: 0; padding: 0; }
-
-.clr { overflow: hidden; }
-.left { float: left; }
-.right { float: right; }
-
-a {
-	color: #3681b3;
-	text-decoration: none;
-}
-a:hover { color: #265c80; }
-a:active { color: #000; }
-
-#wrap {
-    width: 300px;
-    padding-top: 9px;
-    font-size: 12px;
-    color: #888;
-}
-
-#wrap>div { display: none; }
-#wrap>#loading { display: block; }
-
-#loading .loader {
-    position: relative;
-    border-top: 12px dotted #000;
-    height: 9px;
-}
-
-#loading .bar {
-    position: absolute;
-    top: -21px;
-    left: 0;
-    height: 30px;
-    width: 0%;
-    background: #fff url(loader.gif) scroll no-repeat center right;
-}
-p { word-wrap: break-word; }
-
-.warning {
-    margin-top: 1em;
-    color: #aa8d3b;
-    font-style: italic;
-    font-weight: bold;
-}
-.error {
-    margin-top: 1em;
-    font-weight: bold;
-    color: #b33;
-}
-.error a {
-    color: #f75;
-}
-      </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Captura de página inteira</title>
+    <link rel="stylesheet" href="popup.css">
   </head>
   <body>
-      <div id="wrap">
-          <div id="loading">
-              <div class="loader"><div class="bar" id="bar"></div></div>
-              <div class="clr">
-                  <br>
-                  <p>
-                      Screen capture in progress, your finished image will open in a
-                      new window once completed. Please wait for the progress bar to
-                      finish.
-                  </p>
-              </div>
-          </div>
-          <div id="split-image" class="warning">
-              Note: your page is too large for the Chrome browser to capture as
-              one image. It will be split into <span id="screenshot-count">multiple</span>
-              images.
-          </div>
-          <div id="invalid" class="error">
-              Full Page Screen Capture cannot be run on this type of URL
-              because of Google Chrome Web Store policies. Try
-              another page on the web.
-          </div>
-          <div id="uh-oh" class="error">
-              Uh oh, something went wrong! Try reloading the page,
-              verifying javascript is enabled,
-              and running this again.
-              <br><br>
-              If the problem persists, please report the error in the
-              <a href="https://chrome.google.com/webstore/support/fdpohaocaechififmbbbbbknoalclacl?hl=en&gl=US#bug">Chrome webstore</a>.
-              Please include the URL you tried it on and the
-              version of Chrome.
-          </div>
-      </div>
+    <main id="wrap" aria-live="polite">
+      <section id="loading" class="state">
+        <h1>Capturando a página</h1>
+        <div class="progress" role="progressbar" aria-label="Progresso da captura" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="bar"></div>
+        </div>
+        <p id="status-text">Preparando a captura…</p>
+      </section>
 
-      <!-- JavaScript and HTML must be in separate files for security. -->
-      <script src="api.js"></script>
-      <script src="popup.js"></script>
+      <section id="result" class="state" hidden>
+        <h1>Captura concluída</h1>
+        <p id="result-message">A imagem está pronta.</p>
+        <div class="actions">
+          <button id="copy-image" type="button">Copiar imagem</button>
+          <button id="open-image" type="button">Abrir imagem</button>
+          <button id="capture-again" type="button" class="secondary">Capturar novamente</button>
+        </div>
+        <p id="feedback" class="feedback" role="status"></p>
+      </section>
+
+      <section id="error" class="state error" hidden>
+        <h1>Não foi possível capturar</h1>
+        <p id="error-message">Ocorreu um erro inesperado. Recarregue a página e tente novamente.</p>
+        <button id="retry" type="button">Tentar novamente</button>
+      </section>
+    </main>
+    <script src="api.js"></script>
+    <script src="popup.js"></script>
   </body>
 </html>

@@ -1,24 +1,37 @@
-Full Page Screen Capture
-========================
+Captura de Página Inteira
+==========================
 
-A simple Google Chrome extension that takes a screen capture of a full web page. Every extension I tried couldn’t do this on Chrome 22 on Mac OSX Lion. So, I built this one to reliably do it. (Not tested, yet, on any other configurations.)
+Uma extensão simples para o Google Chrome que captura uma página da web inteira. Nenhuma das extensões que testei conseguia fazer isso no Chrome 22, no Mac OS X Lion. Por isso, criei esta extensão para realizar a captura de forma confiável. (Ainda não foi testada em outras configurações.)
 
-### To Install
+### Como instalar
 
-For development:
+Para desenvolvimento:
 
-1. Clone this repo
-2. Open up Chrome and go to the extensions page (Window → Extensions)
-3. Enable developer mode (if it’s not already)
-4. Click on “Load unpacked extension…”
-5. Select the folder for this app
+1. Clone este repositório.
+2. Abra o Chrome e acesse a página de extensões (`chrome://extensions`).
+3. Ative o modo do desenvolvedor, caso ainda não esteja ativado.
+4. Clique em “Carregar sem compactação”.
+5. Selecione a pasta desta extensão.
 
-From the webstore:
+Pela Chrome Web Store:
 
-Find the [Full Page Screen Capture App](https://chrome.google.com/webstore/detail/full-page-screen-capture/fdpohaocaechififmbbbbbknoalclacl) in the Chrome Webstore and click install. (NOTE: the webstore version is now running on a private branch of this repo and will have more updates.)
+Encontre o aplicativo [Full Page Screen Capture](https://chrome.google.com/webstore/detail/full-page-screen-capture/fdpohaocaechififmbbbbbknoalclacl) na Chrome Web Store e clique em instalar. (OBSERVAÇÃO: a versão da loja agora utiliza uma branch privada deste repositório e pode conter atualizações adicionais.)
 
-### Extra notes:
+### Observações adicionais
 
-*   Please report any bugs that you find as issues on the project
-*   More details on [this blog post](http://mrcoles.com/full-page-screen-capture-chrome-extension/)
-*   Thank you to [terrycojones](https://github.com/terrycojones) & [gleitz](https://github.com/gleitz) for contributions!
+* Informe qualquer erro encontrado por meio das issues do projeto.
+* Veja mais detalhes [nesta publicação do blog](http://mrcoles.com/full-page-screen-capture-chrome-extension/).
+* Agradecimentos a [terrycojones](https://github.com/terrycojones) e [gleitz](https://github.com/gleitz) pelas contribuições!
+
+### Notas de versão
+
+Este projeto é uma versão modificada e não oficial do
+Full Page Screen Capture, criado originalmente por Peter Coles.
+
+Código original:
+https://github.com/mrcoles/full-page-screen-capture-chrome-extension
+
+Modificações desta versão:
+- Interface traduzida para português do Brasil
+- Migração para Manifest V3
+- Cópia da captura PNG para a área de transferência

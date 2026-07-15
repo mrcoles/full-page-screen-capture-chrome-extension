@@ -1,4 +1,7 @@
 
+// Copyright (c) 2012,2013 Peter Coles - http://mrcoles.com/ - All rights reserved.
+// Use of this source code is governed by the MIT License found in LICENSE.
+
 window.CaptureAPI = (function() {
 
     var MAX_PRIMARY_DIMENSION = 15000 * 2,
@@ -42,9 +45,15 @@ window.CaptureAPI = (function() {
     }
 
 
-    function capture(data, screenshots, sendResponse, splitnotifier) {
+    function capture(data, screenshots, sendResponse, errback) {
         chrome.tabs.captureVisibleTab(
             null, {format: 'png'}, function(dataURI) {
+                if (chrome.runtime.lastError || !dataURI) {
+                    console.error('Falha ao capturar a área visível:', chrome.runtime.lastError);
+                    errback('capture failed');
+                    sendResponse(false);
+                    return;
+                }
                 if (dataURI) {
                     var image = new Image();
                     image.onload = function() {
@@ -68,12 +77,6 @@ window.CaptureAPI = (function() {
                                 screenshots,
                                 _initScreenshots(data.totalWidth, data.totalHeight)
                             );
-                            if (screenshots.length > 1) {
-                                if (splitnotifier) {
-                                    splitnotifier();
-                                }
-                                $('screenshot-count').innerText = screenshots.length;
-                            }
                         }
 
                         // draw it on matching screenshot canvases
@@ -90,6 +93,11 @@ window.CaptureAPI = (function() {
                         // send back log data for debugging (but keep it truthy to
                         // indicate success)
                         sendResponse(JSON.stringify(data, null, 4) || true);
+                    };
+                    image.onerror = function() {
+                        console.error('Falha ao decodificar uma parte da captura.');
+                        errback('capture failed');
+                        sendResponse(false);
                     };
                     image.src = dataURI;
                 }
@@ -163,70 +171,21 @@ window.CaptureAPI = (function() {
 
 
     function getBlobs(screenshots) {
-        return screenshots.map(function(screenshot) {
-            var dataURI = screenshot.canvas.toDataURL();
-
-            // convert base64 to raw binary data held in a string
-            // doesn't handle URLEncoded DataURIs
-            var byteString = atob(dataURI.split(',')[1]);
-
-            // separate out the mime component
-            var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-            // write the bytes of the string to an ArrayBuffer
-            var ab = new ArrayBuffer(byteString.length);
-            var ia = new Uint8Array(ab);
-            for (var i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-
-            // create a blob for writing to a file
-            var blob = new Blob([ab], {type: mimeString});
-            return blob;
-        });
+        return Promise.all(screenshots.map(function(screenshot) {
+            return new Promise(function(resolve, reject) {
+                screenshot.canvas.toBlob(function(blob) {
+                    if (blob) {
+                        resolve(blob);
+                    } else {
+                        reject(new Error('Falha ao gerar a imagem PNG.'));
+                    }
+                }, 'image/png');
+            });
+        }));
     }
 
 
-    function saveBlob(blob, filename, index, callback, errback) {
-        filename = _addFilenameSuffix(filename, index);
-
-        function onwriteend() {
-            // open the file that now contains the blob - calling
-            // `openPage` again if we had to split up the image
-            var urlName = ('filesystem:chrome-extension://' +
-                           chrome.i18n.getMessage('@@extension_id') +
-                           '/temporary/' + filename);
-
-            callback(urlName);
-        }
-
-        // come up with file-system size with a little buffer
-        var size = blob.size + (1024 / 2);
-
-        // create a blob for writing to a file
-        var reqFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-        reqFileSystem(window.TEMPORARY, size, function(fs){
-            fs.root.getFile(filename, {create: true}, function(fileEntry) {
-                fileEntry.createWriter(function(fileWriter) {
-                    fileWriter.onwriteend = onwriteend;
-                    fileWriter.write(blob);
-                }, errback); // TODO - standardize error callbacks?
-            }, errback);
-        }, errback);
-    }
-
-
-    function _addFilenameSuffix(filename, index) {
-        if (!index) {
-            return filename;
-        }
-        var sp = filename.split('.');
-        var ext = sp.pop();
-        return sp.join('.') + '-' + (index + 1) + '.' + ext;
-    }
-
-
-    function captureToBlobs(tab, callback, errback, progress, splitnotifier) {
+    function captureToBlobs(tab, callback, errback, progress) {
         var loaded = false,
             screenshots = [],
             timeout = 3000,
@@ -238,14 +197,14 @@ window.CaptureAPI = (function() {
         progress = progress || noop;
 
         if (!isValidUrl(tab.url)) {
-            errback('invalid url'); // TODO errors
+            errback('invalid url');
+            return;
         }
 
-        // TODO will this stack up if run multiple times? (I think it will get cleared?)
-        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        function messageListener(request, sender, sendResponse) {
             if (request.msg === 'capture') {
                 progress(request.complete);
-                capture(request, screenshots, sendResponse, splitnotifier);
+                capture(request, screenshots, sendResponse, errback);
 
                 // https://developer.chrome.com/extensions/messaging#simple
                 //
@@ -254,22 +213,35 @@ window.CaptureAPI = (function() {
                 //
                 return true;
             } else {
-                console.error('Unknown message received from content script: ' + request.msg);
+                console.error('Mensagem desconhecida recebida do script de conteúdo: ' + request.msg);
                 errback('internal error');
                 return false;
             }
-        });
+        }
+        chrome.runtime.onMessage.addListener(messageListener);
 
-        chrome.tabs.executeScript(tab.id, {file: 'page.js'}, function() {
+        chrome.scripting.executeScript({
+            target: {tabId: tab.id},
+            files: ['page.js']
+        }, function() {
+            if (chrome.runtime.lastError) {
+                chrome.runtime.onMessage.removeListener(messageListener);
+                console.error('Falha ao injetar o script de captura:', chrome.runtime.lastError);
+                errback('injection failed');
+                return;
+            }
             if (timedOut) {
-                console.error('Timed out too early while waiting for ' +
-                              'chrome.tabs.executeScript. Try increasing the timeout.');
+                console.error('O tempo limite terminou antes da injeção do script de captura.');
             } else {
                 loaded = true;
                 progress(0);
 
                 initiateCapture(tab, function() {
-                    callback(getBlobs(screenshots));
+                    chrome.runtime.onMessage.removeListener(messageListener);
+                    getBlobs(screenshots).then(callback).catch(function(error) {
+                        console.error('Falha ao processar a captura:', error);
+                        errback('capture failed');
+                    });
                 });
             }
         });
@@ -277,32 +249,15 @@ window.CaptureAPI = (function() {
         window.setTimeout(function() {
             if (!loaded) {
                 timedOut = true;
+                chrome.runtime.onMessage.removeListener(messageListener);
                 errback('execute timeout');
             }
         }, timeout);
     }
 
 
-    function captureToFiles(tab, filename, callback, errback, progress, splitnotifier) {
-        captureToBlobs(tab, function(blobs) {
-            var i = 0,
-                len = blobs.length,
-                filenames = [];
-
-            (function doNext() {
-                saveBlob(blobs[i], filename, i, function(filename) {
-                    i++;
-                    filenames.push(filename);
-                    i >= len ? callback(filenames) : doNext();
-                }, errback);
-            })();
-        }, errback, progress, splitnotifier);
-    }
-
-
     return {
-        captureToBlobs: captureToBlobs,
-        captureToFiles: captureToFiles
+        captureToBlobs: captureToBlobs
     };
 
 })();

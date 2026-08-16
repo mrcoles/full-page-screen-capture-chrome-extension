@@ -241,8 +241,7 @@ window.CaptureAPI = (function() {
             errback('invalid url'); // TODO errors
         }
 
-        // TODO will this stack up if run multiple times? (I think it will get cleared?)
-        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        var listener = function(request, sender, sendResponse) {
             if (request.msg === 'capture') {
                 progress(request.complete);
                 capture(request, screenshots, sendResponse, splitnotifier);
@@ -258,17 +257,21 @@ window.CaptureAPI = (function() {
                 errback('internal error');
                 return false;
             }
-        });
+        };
+
+        chrome.runtime.onMessage.addListener(listener);
 
         chrome.tabs.executeScript(tab.id, {file: 'page.js'}, function() {
             if (timedOut) {
                 console.error('Timed out too early while waiting for ' +
                               'chrome.tabs.executeScript. Try increasing the timeout.');
+                chrome.runtime.onMessage.removeListener(listener);
             } else {
                 loaded = true;
                 progress(0);
 
                 initiateCapture(tab, function() {
+                    chrome.runtime.onMessage.removeListener(listener);
                     callback(getBlobs(screenshots));
                 });
             }

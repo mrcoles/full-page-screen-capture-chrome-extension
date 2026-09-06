@@ -187,42 +187,11 @@ window.CaptureAPI = (function() {
     }
 
 
-    function saveBlob(blob, filename, index, callback, errback) {
-        filename = _addFilenameSuffix(filename, index);
-
-        function onwriteend() {
-            // open the file that now contains the blob - calling
-            // `openPage` again if we had to split up the image
-            var urlName = ('filesystem:chrome-extension://' +
-                           chrome.i18n.getMessage('@@extension_id') +
-                           '/temporary/' + filename);
-
-            callback(urlName);
-        }
-
-        // come up with file-system size with a little buffer
-        var size = blob.size + (1024 / 2);
-
-        // create a blob for writing to a file
-        var reqFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-        reqFileSystem(window.TEMPORARY, size, function(fs){
-            fs.root.getFile(filename, {create: true}, function(fileEntry) {
-                fileEntry.createWriter(function(fileWriter) {
-                    fileWriter.onwriteend = onwriteend;
-                    fileWriter.write(blob);
-                }, errback); // TODO - standardize error callbacks?
-            }, errback);
-        }, errback);
-    }
-
-
-    function _addFilenameSuffix(filename, index) {
-        if (!index) {
-            return filename;
-        }
-        var sp = filename.split('.');
-        var ext = sp.pop();
-        return sp.join('.') + '-' + (index + 1) + '.' + ext;
+    function blobToDataURL(blob, callback, errback) {
+        var reader = new FileReader();
+        reader.onload = function() { callback(reader.result); };
+        reader.onerror = errback;
+        reader.readAsDataURL(blob);
     }
 
 
@@ -260,7 +229,7 @@ window.CaptureAPI = (function() {
             }
         });
 
-        chrome.tabs.executeScript(tab.id, {file: 'page.js'}, function() {
+        chrome.scripting.executeScript({target: {tabId: tab.id}, files: ['page.js']}, function() {
             if (timedOut) {
                 console.error('Timed out too early while waiting for ' +
                               'chrome.tabs.executeScript. Try increasing the timeout.');
@@ -287,13 +256,13 @@ window.CaptureAPI = (function() {
         captureToBlobs(tab, function(blobs) {
             var i = 0,
                 len = blobs.length,
-                filenames = [];
+                dataURLs = [];
 
             (function doNext() {
-                saveBlob(blobs[i], filename, i, function(filename) {
+                blobToDataURL(blobs[i], function(dataURL) {
                     i++;
-                    filenames.push(filename);
-                    i >= len ? callback(filenames) : doNext();
+                    dataURLs.push(dataURL);
+                    i >= len ? callback(dataURLs) : doNext();
                 }, errback);
             })();
         }, errback, progress, splitnotifier);
